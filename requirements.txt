@@ -1,0 +1,4 @@
+colorama
+cv2
+pyautogui
+numpy
