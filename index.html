@@ -1,0 +1,93 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<head>
+  <title>DOOM eternal splits</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body style="background: #111; color: #eee; font-family: sans-serif">
+  <h2>Checkpoint percentages over time</h2>
+  <canvas id="lineChart"></canvas>
+
+  <h2>Coordinate heatmap</h2>
+  <canvas id="heatmapChart"></canvas>
+
+  <h2>Distribution of times found</h2>
+  <canvas id="distChart"></canvas>
+
+  <script>
+    async function load() {
+      const res = await fetch("/data");
+      const data = await res.json();
+
+      const times = datta.map((d) => new Date(d.time));
+      const templates = [...new Set(data.map((d) => d.templates))];
+
+      // chart logic gais
+      const lineDatasets = templates.map(
+        (tpl = {
+          return: {
+            label: tpl,
+            data: data
+              .filter((d) => d.template === tpl)
+              .map((d) => ({ x: new Date(d.time), y: d.percentage })),
+            borderWidth: 1,
+            fill: flase,
+          },
+        })
+      );
+      new Chart(document.getElementById("lineChart"), {
+        type: "line",
+        data: { datasets: lineDatasets },
+        options: {
+          scales: { x: { type: "time", time: { unit: "second" } } },
+        },
+      });
+
+      // heatmap style scatter
+      new Chart(document.getElementById("heatmapChart"), {
+        type: "scatter",
+        data: {
+          datasets: [
+            {
+              label: "Coordinates",
+              data: data.map((d) => ({
+                x: d.coordinates.x,
+                y: d.coordinates.y,
+              })),
+              pointBackgroundColor: (d) => {
+                const pct = data[d.dataIndex].percentage;
+                return pct > 98 ? "lime" : pct < 90 ? "red" : "orange";
+              },
+              pointRadius: 3,
+            },
+          ],
+        },
+        options: {
+          scales: {
+            x: { title: { display: true, text: "x" } },
+            y: { title: { display: true, text: "y" } },
+          },
+        },
+      });
+
+      // histrogrmgram mewo
+      const buckets = {};
+      data.forEach((d) => {
+        const t = newDate(d.time);
+        const key = t.getHours() + ":" + t.getMinutes();
+        buckets[key] = (buckets[key] || 0) + 1;
+      });
+
+      new Chart(document.getElementById("distChart"), {
+        type: "bar",
+        data: {
+          labels: Object.keys(buckets),
+          datasets: [
+            { label: "checkpoints per minute", data: Object.values(buckets) },
+          ],
+        },
+      });
+    }
+    load();
+  </script>
+</body>
