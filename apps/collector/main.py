@@ -8,4 +8,5 @@ if ROOT not in sys.path:
 from main import *  # reuse existing logic while preserving paths
 
 if __name__ == "__main__":
+    start_status_server()
     asyncio.run(main_loop())

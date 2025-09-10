@@ -7,23 +7,32 @@ import datetime
 import json
 import asyncio
 from colorama import Fore, Back, Style, init
+import threading
+from http.server import BaseHTTPRequestHandler, HTTPServer
 
 init(autoreset=True)
 
-checkpoints_dir = "./checkpoints"
+markers_root = "./markers"
 screenshots_dir = "./screenshots_cache"
 log_file = "log.txt"
 matches_json_path = "./data/matches.json"
 
-os.makedirs(checkpoints_dir, exist_ok=True)
+os.makedirs(markers_root, exist_ok=True)
 os.makedirs(screenshots_dir, exist_ok=True)
 os.makedirs(os.path.dirname(matches_json_path), exist_ok=True)
 
 templates = {}
-for fname in os.listdir(checkpoints_dir):
-    path = os.path.join(checkpoints_dir, fname)
-    if fname.lower().endswith((".png", ".jpg", ".jpeg")):
-        templates[fname] = cv2.imread(path, cv2.IMREAD_COLOR)
+for root, dirs, files in os.walk(markers_root):
+    rel = os.path.relpath(root, markers_root)
+    if rel == ".":
+        marker_name = None
+    else:
+        marker_name = rel.replace("\\", "/")
+    for fname in files:
+        if fname.lower().endswith((".png", ".jpg", ".jpeg")):
+            key = f"{marker_name}/{fname}" if marker_name else fname
+            img_path = os.path.join(root, fname)
+            templates[key] = cv2.imread(img_path, cv2.IMREAD_COLOR)
 
 log_buffer = []
 last_dump = time.time()
@@ -130,8 +139,16 @@ def append_matches_to_json(matches, screensize, livesplit_info=None):
     ts_str = timestamp.strftime("%Y-%m-%d %H:%M:%S")
     entry_list = []
     for name, score, coords, _ in matches:
+        marker = None
+        image = name
+        if "/" in name:
+            parts = name.split("/")
+            marker = "/".join(parts[:-1])
+            image = parts[-1]
         entry = {
             "template": name,
+            "marker": marker,
+            "image": image,
             "percentage": round(score * 100, 2),
             "coordinates": {"x": coords[0], "y": coords[1]},
             "time": ts_str,
@@ -192,6 +209,34 @@ def draw_bounding_box_and_text(image_pil, match_info):
 
 last_match_time = 0
 
+
+def start_status_server(host: str = "127.0.0.1", port: int = 5555):
+    class StatusHandler(BaseHTTPRequestHandler):
+        def do_GET(self):
+            if self.path != "/status":
+                self.send_response(404)
+                self.end_headers()
+                return
+            try:
+                connected = asyncio.run(livesplit_client.is_running())
+            except Exception:
+                connected = False
+            body = json.dumps({"connected": bool(connected)}).encode("utf-8")
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+
+        def log_message(self, format, *args):
+            return
+
+    def serve():
+        httpd = HTTPServer((host, port), StatusHandler)
+        httpd.serve_forever()
+
+    t = threading.Thread(target=serve, daemon=True)
+    t.start()
 
 async def main_loop():
     global last_match_time
