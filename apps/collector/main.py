@@ -5,7 +5,7 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
     
-from main import *  # reuse existing logic while preserving paths
+from main import *  
 
 if __name__ == "__main__":
     start_status_server()
