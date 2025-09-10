@@ -5,6 +5,7 @@ import os
 import time
 import datetime
 import json
+import asyncio
 from colorama import Fore, Back, Style, init
 
 init(autoreset=True)
@@ -27,6 +28,10 @@ for fname in os.listdir(checkpoints_dir):
 log_buffer = []
 last_dump = time.time()
 
+from livesplit_api import LiveSplitClient
+
+livesplit_client = LiveSplitClient()
+
 
 def log_event(msg):
     global log_buffer, last_dump
@@ -43,15 +48,21 @@ def log_event(msg):
         last_dump = time.time()
 
 
-def screen_region():
+def get_full_screenshot():
     w, h = pyautogui.size()
-    region = (w // 2, 0, w // 2, h // 2)
-    return pyautogui.screenshot(region=region), (w, h)
+    return pyautogui.screenshot(), (w, h)
 
 
-def match_templates(screenshot):
+def get_match_region(full_img):
+    w, h = full_img.size
+    region = (w // 2, 0, w, h // 2)
+    return full_img.crop(region), (w // 2, 0)
+
+
+def match_templates(full_screenshot):
+    region_img, (offset_x, offset_y) = get_match_region(full_screenshot)
     matched = []
-    screen_np = cv2.cvtColor(np.array(screenshot), cv2.COLOR_RGB2BGR)
+    screen_np = cv2.cvtColor(np.array(region_img), cv2.COLOR_RGB2BGR)
     for name, tmpl in templates.items():
         if tmpl is None:
             continue
@@ -59,13 +70,60 @@ def match_templates(screenshot):
         min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
         if max_val >= 0.7:
             t_h, t_w = tmpl.shape[:2]
-            center_x = max_loc[0] + t_w // 2
-            center_y = max_loc[1] + t_h // 2
-            matched.append((name, max_val, (center_x, center_y), (max_loc, (t_w, t_h))))
+            center_x = max_loc[0] + t_w // 2 + offset_x
+            center_y = max_loc[1] + t_h // 2 + offset_y
+            matched.append(
+                (
+                    name,
+                    max_val,
+                    (center_x, center_y),
+                    ((max_loc[0] + offset_x, max_loc[1] + offset_y), (t_w, t_h)),
+                )
+            )
     return matched
 
 
-def append_matches_to_json(matches, screensize):
+async def get_livesplit_info():
+    try:
+        current_time = await livesplit_client.get_current_time()
+    except Exception:
+        current_time = None
+    try:
+        attempt_count = await livesplit_client.get_attempt_count()
+    except Exception:
+        attempt_count = None
+    return {
+        "livesplit_current_time": current_time,
+        "livesplit_attempt_count": attempt_count,
+    }
+
+
+def enumerate_runs(data):
+    run_id = 1
+    prev_time = None
+    for entry in data:
+        cur_time = entry.get("livesplit_current_time")
+        if cur_time is not None:
+            try:
+                # Parse as timedelta, e.g. "00:01:57.3362060"
+                h, m, s = cur_time.split(":")
+                s, ms = s.split(".") if "." in s else (s, "0")
+                cur_seconds = int(h) * 3600 + int(m) * 60 + float(f"{s}.{ms}")
+            except Exception:
+                cur_seconds = None
+        else:
+            cur_seconds = None
+
+        if prev_time is not None and cur_seconds is not None:
+            if cur_seconds < prev_time:
+                run_id += 1
+        entry["run_id"] = run_id
+        if cur_seconds is not None:
+            prev_time = cur_seconds
+    return data
+
+
+def append_matches_to_json(matches, screensize, livesplit_info=None):
     timestamp = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(
         hours=2
     )
@@ -79,6 +137,8 @@ def append_matches_to_json(matches, screensize):
             "time": ts_str,
             "screensize": {"width": screensize[0], "height": screensize[1]},
         }
+        if livesplit_info:
+            entry.update(livesplit_info)
         entry_list.append(entry)
     if not entry_list:
         return
@@ -91,6 +151,7 @@ def append_matches_to_json(matches, screensize):
     except Exception:
         data = []
     data.extend(entry_list)
+    data = enumerate_runs(data)
     with open(matches_json_path, "w") as f:
         json.dump(data, f, indent=2)
 
@@ -108,7 +169,9 @@ def draw_bounding_box_and_text(image_pil, match_info):
     x1, y1 = top_left
     x2, y2 = x1 + t_w, y1 + t_h
     draw.rectangle([x1, y1, x2, y2], outline=box_color, width=3)
-    timestamp = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=2)
+    timestamp = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(
+        hours=2
+    )
     ts_str = timestamp.strftime("%Y-%m-%d %H:%M:%S")
     text = f"{coords[0]}, {coords[1]} @ {ts_str}"
     try:
@@ -120,29 +183,39 @@ def draw_bounding_box_and_text(image_pil, match_info):
     text_h = text_size[3] - text_size[1]
     text_x = x1
     text_y = y2 + 5
-    draw.rectangle([text_x, text_y, text_x + text_w, text_y + text_h], fill=(0,0,0,0))
+    draw.rectangle(
+        [text_x, text_y, text_x + text_w, text_y + text_h], fill=(0, 0, 0, 0)
+    )
     draw.text((text_x, text_y), text, fill=text_color, font=font)
     return img
 
+
 last_match_time = 0
 
-try:
-    while True:
-        shot, screensize = screen_region()
-        fname = f"{screenshots_dir}/{int(time.time()*1000)}.png"
 
-        results = match_templates(shot)
-        now = time.time()
-        if results and (now - last_match_time >= 5):
-            name, score, coords, extra = results[0]
-            log_event(f"Match: {name} at {coords} with {score*100:.2f}%")
-            img_with_box = draw_bounding_box_and_text(shot, results[0])
-            img_with_box.save(fname)
-            append_matches_to_json([results[0]], screensize)
-            last_match_time = now
-        time.sleep(0.5)
-        
-except KeyboardInterrupt:
-    if log_buffer:
-        with open(log_file, "a") as f:
-            f.write("\n".join(log_buffer) + "\n")
+async def main_loop():
+    global last_match_time
+    try:
+        while True:
+            shot, screensize = get_full_screenshot()
+            fname = f"{screenshots_dir}/{int(time.time()*1000)}.png"
+            results = match_templates(shot)
+            now = time.time()
+            if results and (now - last_match_time >= 5):
+                name, score, coords, extra = results[0]
+                log_event(f"Match: {name} at {coords} with {score*100:.2f}%")
+                img_with_box = draw_bounding_box_and_text(shot, results[0])
+                img_with_box.save(fname)
+                livesplit_info = await get_livesplit_info()
+                append_matches_to_json([results[0]], screensize, livesplit_info)
+                last_match_time = now
+            await asyncio.sleep(0.5)
+
+    except KeyboardInterrupt:
+        if log_buffer:
+            with open(log_file, "a") as f:
+                f.write("\n".join(log_buffer) + "\n")
+
+
+if __name__ == "__main__":
+    asyncio.run(main_loop())

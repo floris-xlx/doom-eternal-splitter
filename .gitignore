@@ -209,3 +209,4 @@ __marimo__/
 
 screenshots_cache/*
 node_modules/*
+apps/web/*

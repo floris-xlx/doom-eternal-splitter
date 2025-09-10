@@ -1,7 +1,6 @@
 import asyncio
 import websockets
 
-
 class LiveSplitClient:
     def __init__(
         self, host: str = "localhost", port: int = 16834, path: str = "/livesplit"
@@ -12,13 +11,19 @@ class LiveSplitClient:
 
     async def _send(self, command: str):
         ws_url = f"ws://{self.host}:{self.port}{self.path}"
-        async with websockets.connect(ws_url) as ws:
-            await ws.send(command)
-            try:
-                response = await asyncio.wait_for(ws.recv(), timeout=1)
-                return response
-            except asyncio.TimeoutError:
-                return None
+        try:
+            async with websockets.connect(ws_url) as ws:
+                await ws.send(command)
+                try:
+                    response = await asyncio.wait_for(ws.recv(), timeout=1)
+                    print(f"Command: {command} | Response: {response}")
+                    return response
+                except asyncio.TimeoutError:
+                    print(f"Command: {command} | Response: Timeout")
+                    return None
+        except (ConnectionRefusedError, OSError, websockets.exceptions.InvalidURI, websockets.exceptions.InvalidHandshake):
+            print(f"Could not connect to LiveSplit websocket at {ws_url}")
+            return None
 
     async def split(self):
         await self._send("split")
@@ -44,7 +49,21 @@ class LiveSplitClient:
     async def ping(self):
         return await self._send("ping")
 
+    async def is_running(self):
+        ws_url = f"ws://{self.host}:{self.port}{self.path}"
+        try:
+            async with websockets.connect(ws_url) as ws:
+                await ws.send("ping")
+                await asyncio.wait_for(ws.recv(), timeout=1)
+                return True
+        except Exception:
+            return False
 
-# Example usage:
-# client = LiveSplitClient()
+client = LiveSplitClient()
 # asyncio.run(client.start())
+async def main():
+    running = await client.is_running()
+    print("LiveSplit websocket running?" , running)
+    await client.get_current_time()
+
+asyncio.run(main())

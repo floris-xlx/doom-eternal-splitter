@@ -1,1250 +1,602 @@
 [
   {
     "template": "1.png",
-    "percentage": 99.39,
-    "coordinates": {
-      "x": 902,
-      "y": 300
-    },
-    "time": "2025-09-09 21:18:29",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
-  },
-  {
-    "template": "3.png",
     "percentage": 99.24,
     "coordinates": {
-      "x": 912,
-      "y": 301
+      "x": 3462,
+      "y": 300
     },
-    "time": "2025-09-09 21:18:29",
+    "time": "2025-09-10 09:40:37",
     "screensize": {
       "width": 5120,
       "height": 1440
-    }
-  },
-  {
-    "template": "4.png",
-    "percentage": 99.42,
-    "coordinates": {
-      "x": 902,
-      "y": 303
     },
-    "time": "2025-09-09 21:18:29",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
-  },
-  {
-    "template": "6.png",
-    "percentage": 97.18,
-    "coordinates": {
-      "x": 911,
-      "y": 302
-    },
-    "time": "2025-09-09 21:18:29",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
-  },
-  {
-    "template": "7.png",
-    "percentage": 99.57,
-    "coordinates": {
-      "x": 907,
-      "y": 304
-    },
-    "time": "2025-09-09 21:18:29",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
+    "livesplit_current_time": "00:01:57.3362060",
+    "livesplit_attempt_count": null
   },
   {
     "template": "1.png",
-    "percentage": 99.37,
+    "percentage": 99.25,
     "coordinates": {
-      "x": 902,
+      "x": 3462,
       "y": 300
     },
-    "time": "2025-09-09 21:18:32",
+    "time": "2025-09-10 09:41:10",
     "screensize": {
       "width": 5120,
       "height": 1440
-    }
-  },
-  {
-    "template": "3.png",
-    "percentage": 99.26,
-    "coordinates": {
-      "x": 912,
-      "y": 301
     },
-    "time": "2025-09-09 21:18:32",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
-  },
-  {
-    "template": "4.png",
-    "percentage": 99.52,
-    "coordinates": {
-      "x": 902,
-      "y": 303
-    },
-    "time": "2025-09-09 21:18:32",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
-  },
-  {
-    "template": "6.png",
-    "percentage": 97.12,
-    "coordinates": {
-      "x": 911,
-      "y": 302
-    },
-    "time": "2025-09-09 21:18:32",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
-  },
-  {
-    "template": "7.png",
-    "percentage": 99.61,
-    "coordinates": {
-      "x": 907,
-      "y": 304
-    },
-    "time": "2025-09-09 21:18:32",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
+    "livesplit_current_time": "00:02:30.5786529",
+    "livesplit_attempt_count": null
   },
   {
     "template": "1.png",
-    "percentage": 96.32,
+    "percentage": 98.71,
     "coordinates": {
-      "x": 902,
+      "x": 3462,
       "y": 300
     },
-    "time": "2025-09-09 21:18:45",
+    "time": "2025-09-10 09:42:18",
     "screensize": {
       "width": 5120,
       "height": 1440
-    }
-  },
-  {
-    "template": "3.png",
-    "percentage": 96.46,
-    "coordinates": {
-      "x": 912,
-      "y": 301
     },
-    "time": "2025-09-09 21:18:45",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
-  },
-  {
-    "template": "4.png",
-    "percentage": 98.06,
-    "coordinates": {
-      "x": 902,
-      "y": 303
-    },
-    "time": "2025-09-09 21:18:45",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
-  },
-  {
-    "template": "6.png",
-    "percentage": 95.53,
-    "coordinates": {
-      "x": 911,
-      "y": 302
-    },
-    "time": "2025-09-09 21:18:45",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
-  },
-  {
-    "template": "7.png",
-    "percentage": 98.45,
-    "coordinates": {
-      "x": 907,
-      "y": 304
-    },
-    "time": "2025-09-09 21:18:45",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
+    "livesplit_current_time": "00:03:39.2347515",
+    "livesplit_attempt_count": null
   },
   {
     "template": "1.png",
-    "percentage": 98.49,
+    "percentage": 99.3,
     "coordinates": {
-      "x": 902,
+      "x": 3462,
       "y": 300
     },
-    "time": "2025-09-09 21:18:48",
+    "time": "2025-09-10 09:42:26",
     "screensize": {
       "width": 5120,
       "height": 1440
-    }
-  },
-  {
-    "template": "3.png",
-    "percentage": 98.47,
-    "coordinates": {
-      "x": 912,
-      "y": 301
     },
-    "time": "2025-09-09 21:18:48",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
-  },
-  {
-    "template": "4.png",
-    "percentage": 98.9,
-    "coordinates": {
-      "x": 902,
-      "y": 303
-    },
-    "time": "2025-09-09 21:18:48",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
-  },
-  {
-    "template": "6.png",
-    "percentage": 96.62,
-    "coordinates": {
-      "x": 911,
-      "y": 302
-    },
-    "time": "2025-09-09 21:18:48",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
-  },
-  {
-    "template": "7.png",
-    "percentage": 99.1,
-    "coordinates": {
-      "x": 907,
-      "y": 304
-    },
-    "time": "2025-09-09 21:18:48",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
+    "livesplit_current_time": "00:03:46.2711475",
+    "livesplit_attempt_count": null
   },
   {
     "template": "1.png",
-    "percentage": 99.06,
+    "percentage": 98.54,
     "coordinates": {
-      "x": 902,
+      "x": 3462,
       "y": 300
     },
-    "time": "2025-09-09 21:19:35",
+    "time": "2025-09-10 09:42:44",
     "screensize": {
       "width": 5120,
       "height": 1440
-    }
-  },
-  {
-    "template": "3.png",
-    "percentage": 98.77,
-    "coordinates": {
-      "x": 912,
-      "y": 301
     },
-    "time": "2025-09-09 21:19:35",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
-  },
-  {
-    "template": "4.png",
-    "percentage": 99.51,
-    "coordinates": {
-      "x": 902,
-      "y": 303
-    },
-    "time": "2025-09-09 21:19:35",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
-  },
-  {
-    "template": "6.png",
-    "percentage": 96.96,
-    "coordinates": {
-      "x": 911,
-      "y": 302
-    },
-    "time": "2025-09-09 21:19:35",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
-  },
-  {
-    "template": "7.png",
-    "percentage": 99.43,
-    "coordinates": {
-      "x": 907,
-      "y": 304
-    },
-    "time": "2025-09-09 21:19:35",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
+    "livesplit_current_time": "00:04:04.8250776",
+    "livesplit_attempt_count": null
   },
   {
     "template": "1.png",
-    "percentage": 96.14,
+    "percentage": 93.33,
     "coordinates": {
-      "x": 902,
+      "x": 3462,
       "y": 300
     },
-    "time": "2025-09-09 21:19:38",
+    "time": "2025-09-10 09:43:22",
     "screensize": {
       "width": 5120,
       "height": 1440
-    }
-  },
-  {
-    "template": "3.png",
-    "percentage": 96.37,
-    "coordinates": {
-      "x": 912,
-      "y": 301
     },
-    "time": "2025-09-09 21:19:38",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
-  },
-  {
-    "template": "4.png",
-    "percentage": 96.97,
-    "coordinates": {
-      "x": 902,
-      "y": 303
-    },
-    "time": "2025-09-09 21:19:38",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
-  },
-  {
-    "template": "6.png",
-    "percentage": 94.72,
-    "coordinates": {
-      "x": 911,
-      "y": 302
-    },
-    "time": "2025-09-09 21:19:38",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
-  },
-  {
-    "template": "7.png",
-    "percentage": 97.45,
-    "coordinates": {
-      "x": 907,
-      "y": 304
-    },
-    "time": "2025-09-09 21:19:38",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
+    "livesplit_current_time": "00:04:43.1178273",
+    "livesplit_attempt_count": null
   },
   {
     "template": "1.png",
-    "percentage": 92.68,
+    "percentage": 93.03,
     "coordinates": {
-      "x": 902,
+      "x": 3462,
       "y": 300
     },
-    "time": "2025-09-09 21:19:41",
+    "time": "2025-09-10 09:44:07",
     "screensize": {
       "width": 5120,
       "height": 1440
-    }
-  },
-  {
-    "template": "3.png",
-    "percentage": 94.81,
-    "coordinates": {
-      "x": 912,
-      "y": 301
     },
-    "time": "2025-09-09 21:19:41",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
-  },
-  {
-    "template": "4.png",
-    "percentage": 94.9,
-    "coordinates": {
-      "x": 902,
-      "y": 303
-    },
-    "time": "2025-09-09 21:19:41",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
-  },
-  {
-    "template": "6.png",
-    "percentage": 93.36,
-    "coordinates": {
-      "x": 911,
-      "y": 302
-    },
-    "time": "2025-09-09 21:19:41",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
-  },
-  {
-    "template": "7.png",
-    "percentage": 96.23,
-    "coordinates": {
-      "x": 907,
-      "y": 304
-    },
-    "time": "2025-09-09 21:19:41",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
+    "livesplit_current_time": "00:05:27.7084389",
+    "livesplit_attempt_count": null
   },
   {
     "template": "1.png",
-    "percentage": 93.44,
+    "percentage": 92.9,
     "coordinates": {
-      "x": 902,
+      "x": 3462,
       "y": 300
     },
-    "time": "2025-09-09 21:19:44",
+    "time": "2025-09-10 09:44:14",
     "screensize": {
       "width": 5120,
       "height": 1440
-    }
-  },
-  {
-    "template": "3.png",
-    "percentage": 96.38,
-    "coordinates": {
-      "x": 912,
-      "y": 301
     },
-    "time": "2025-09-09 21:19:44",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
-  },
-  {
-    "template": "4.png",
-    "percentage": 95.76,
-    "coordinates": {
-      "x": 902,
-      "y": 303
-    },
-    "time": "2025-09-09 21:19:44",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
-  },
-  {
-    "template": "6.png",
-    "percentage": 92.01,
-    "coordinates": {
-      "x": 911,
-      "y": 302
-    },
-    "time": "2025-09-09 21:19:44",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
-  },
-  {
-    "template": "7.png",
-    "percentage": 96.22,
-    "coordinates": {
-      "x": 907,
-      "y": 304
-    },
-    "time": "2025-09-09 21:19:44",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
+    "livesplit_current_time": "00:05:34.7909381",
+    "livesplit_attempt_count": null
   },
   {
     "template": "1.png",
-    "percentage": 99.14,
+    "percentage": 95.96,
     "coordinates": {
-      "x": 902,
+      "x": 3462,
       "y": 300
     },
-    "time": "2025-09-09 21:20:05",
+    "time": "2025-09-10 09:44:35",
     "screensize": {
       "width": 5120,
       "height": 1440
-    }
-  },
-  {
-    "template": "3.png",
-    "percentage": 99.15,
-    "coordinates": {
-      "x": 912,
-      "y": 301
     },
-    "time": "2025-09-09 21:20:05",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
-  },
-  {
-    "template": "4.png",
-    "percentage": 99.39,
-    "coordinates": {
-      "x": 902,
-      "y": 303
-    },
-    "time": "2025-09-09 21:20:05",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
-  },
-  {
-    "template": "6.png",
-    "percentage": 97.03,
-    "coordinates": {
-      "x": 911,
-      "y": 302
-    },
-    "time": "2025-09-09 21:20:05",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
-  },
-  {
-    "template": "7.png",
-    "percentage": 99.59,
-    "coordinates": {
-      "x": 907,
-      "y": 304
-    },
-    "time": "2025-09-09 21:20:05",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
+    "livesplit_current_time": "00:05:56.0389660",
+    "livesplit_attempt_count": null
   },
   {
     "template": "1.png",
-    "percentage": 76.41,
+    "percentage": 98.86,
     "coordinates": {
-      "x": 902,
+      "x": 3462,
       "y": 300
     },
-    "time": "2025-09-09 21:20:08",
+    "time": "2025-09-10 09:45:42",
     "screensize": {
       "width": 5120,
       "height": 1440
-    }
-  },
-  {
-    "template": "3.png",
-    "percentage": 82.81,
-    "coordinates": {
-      "x": 912,
-      "y": 301
     },
-    "time": "2025-09-09 21:20:08",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
-  },
-  {
-    "template": "4.png",
-    "percentage": 78.26,
-    "coordinates": {
-      "x": 902,
-      "y": 303
-    },
-    "time": "2025-09-09 21:20:08",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
-  },
-  {
-    "template": "6.png",
-    "percentage": 79.85,
-    "coordinates": {
-      "x": 911,
-      "y": 302
-    },
-    "time": "2025-09-09 21:20:08",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
-  },
-  {
-    "template": "7.png",
-    "percentage": 83.55,
-    "coordinates": {
-      "x": 907,
-      "y": 304
-    },
-    "time": "2025-09-09 21:20:08",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
+    "livesplit_current_time": "00:07:03.1410686",
+    "livesplit_attempt_count": null
   },
   {
     "template": "1.png",
-    "percentage": 99.14,
+    "percentage": 99.21,
     "coordinates": {
-      "x": 902,
+      "x": 3462,
       "y": 300
     },
-    "time": "2025-09-09 21:20:43",
+    "time": "2025-09-10 09:46:04",
     "screensize": {
       "width": 5120,
       "height": 1440
-    }
-  },
-  {
-    "template": "3.png",
-    "percentage": 98.95,
-    "coordinates": {
-      "x": 912,
-      "y": 301
     },
-    "time": "2025-09-09 21:20:43",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
-  },
-  {
-    "template": "4.png",
-    "percentage": 99.64,
-    "coordinates": {
-      "x": 902,
-      "y": 303
-    },
-    "time": "2025-09-09 21:20:43",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
-  },
-  {
-    "template": "6.png",
-    "percentage": 96.8,
-    "coordinates": {
-      "x": 911,
-      "y": 302
-    },
-    "time": "2025-09-09 21:20:43",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
-  },
-  {
-    "template": "7.png",
-    "percentage": 99.52,
-    "coordinates": {
-      "x": 907,
-      "y": 304
-    },
-    "time": "2025-09-09 21:20:43",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
+    "livesplit_current_time": "00:07:24.3881419",
+    "livesplit_attempt_count": null
   },
   {
     "template": "1.png",
-    "percentage": 97.1,
+    "percentage": 96.55,
     "coordinates": {
-      "x": 902,
+      "x": 3462,
       "y": 300
     },
-    "time": "2025-09-09 21:20:47",
+    "time": "2025-09-10 09:46:26",
     "screensize": {
       "width": 5120,
       "height": 1440
-    }
-  },
-  {
-    "template": "3.png",
-    "percentage": 97.46,
-    "coordinates": {
-      "x": 912,
-      "y": 301
     },
-    "time": "2025-09-09 21:20:47",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
-  },
-  {
-    "template": "4.png",
-    "percentage": 98.13,
-    "coordinates": {
-      "x": 902,
-      "y": 303
-    },
-    "time": "2025-09-09 21:20:47",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
-  },
-  {
-    "template": "6.png",
-    "percentage": 96.49,
-    "coordinates": {
-      "x": 911,
-      "y": 302
-    },
-    "time": "2025-09-09 21:20:47",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
-  },
-  {
-    "template": "7.png",
-    "percentage": 98.77,
-    "coordinates": {
-      "x": 907,
-      "y": 304
-    },
-    "time": "2025-09-09 21:20:47",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
+    "livesplit_current_time": "00:07:47.0383097",
+    "livesplit_attempt_count": null
   },
   {
     "template": "1.png",
-    "percentage": 95.19,
+    "percentage": 97.02,
     "coordinates": {
-      "x": 902,
+      "x": 3462,
       "y": 300
     },
-    "time": "2025-09-09 21:21:26",
+    "time": "2025-09-10 09:47:56",
     "screensize": {
       "width": 5120,
       "height": 1440
-    }
-  },
-  {
-    "template": "3.png",
-    "percentage": 95.63,
-    "coordinates": {
-      "x": 912,
-      "y": 301
     },
-    "time": "2025-09-09 21:21:26",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
-  },
-  {
-    "template": "4.png",
-    "percentage": 95.92,
-    "coordinates": {
-      "x": 902,
-      "y": 303
-    },
-    "time": "2025-09-09 21:21:26",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
-  },
-  {
-    "template": "6.png",
-    "percentage": 95.7,
-    "coordinates": {
-      "x": 911,
-      "y": 302
-    },
-    "time": "2025-09-09 21:21:26",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
-  },
-  {
-    "template": "7.png",
-    "percentage": 97.18,
-    "coordinates": {
-      "x": 907,
-      "y": 304
-    },
-    "time": "2025-09-09 21:21:26",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
+    "livesplit_current_time": "00:09:17.0654404",
+    "livesplit_attempt_count": null
   },
   {
     "template": "1.png",
-    "percentage": 99.2,
+    "percentage": 71.72,
     "coordinates": {
-      "x": 902,
+      "x": 3462,
       "y": 300
     },
-    "time": "2025-09-09 21:21:29",
+    "time": "2025-09-10 09:49:09",
     "screensize": {
       "width": 5120,
       "height": 1440
-    }
-  },
-  {
-    "template": "3.png",
-    "percentage": 98.96,
-    "coordinates": {
-      "x": 912,
-      "y": 301
     },
-    "time": "2025-09-09 21:21:29",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
+    "livesplit_current_time": "00:10:29.9871179",
+    "livesplit_attempt_count": null
   },
   {
-    "template": "4.png",
-    "percentage": 99.63,
+    "template": "1.png",
+    "percentage": 98.32,
     "coordinates": {
-      "x": 902,
-      "y": 303
+      "x": 3462,
+      "y": 300
     },
-    "time": "2025-09-09 21:21:29",
+    "time": "2025-09-10 09:51:06",
     "screensize": {
       "width": 5120,
       "height": 1440
-    }
+    },
+    "livesplit_current_time": "00:12:20.0611287",
+    "livesplit_attempt_count": null
   },
   {
-    "template": "6.png",
-    "percentage": 96.91,
+    "template": "1.png",
+    "percentage": 90.21,
     "coordinates": {
-      "x": 911,
-      "y": 302
+      "x": 3462,
+      "y": 300
     },
-    "time": "2025-09-09 21:21:29",
+    "time": "2025-09-10 09:51:38",
     "screensize": {
       "width": 5120,
       "height": 1440
-    }
+    },
+    "livesplit_current_time": "00:12:52.8414455",
+    "livesplit_attempt_count": null
   },
   {
-    "template": "7.png",
+    "template": "1.png",
+    "percentage": 86.93,
+    "coordinates": {
+      "x": 3462,
+      "y": 300
+    },
+    "time": "2025-09-10 09:52:04",
+    "screensize": {
+      "width": 5120,
+      "height": 1440
+    },
+    "livesplit_current_time": "00:13:18.2468147",
+    "livesplit_attempt_count": null
+  },
+  {
+    "template": "1.png",
     "percentage": 99.56,
     "coordinates": {
-      "x": 907,
-      "y": 304
+      "x": 3462,
+      "y": 300
     },
-    "time": "2025-09-09 21:21:29",
+    "time": "2025-09-10 10:47:52",
     "screensize": {
       "width": 5120,
       "height": 1440
-    }
+    },
+    "livesplit_current_time": "00:00:03.1571052",
+    "livesplit_attempt_count": null
   },
   {
     "template": "1.png",
-    "percentage": 88.08,
+    "percentage": 98.88,
     "coordinates": {
-      "x": 902,
+      "x": 3462,
       "y": 300
     },
-    "time": "2025-09-09 21:21:32",
+    "time": "2025-09-10 10:48:12",
     "screensize": {
       "width": 5120,
       "height": 1440
-    }
-  },
-  {
-    "template": "3.png",
-    "percentage": 88.21,
-    "coordinates": {
-      "x": 912,
-      "y": 301
     },
-    "time": "2025-09-09 21:21:32",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
-  },
-  {
-    "template": "4.png",
-    "percentage": 90.19,
-    "coordinates": {
-      "x": 902,
-      "y": 303
-    },
-    "time": "2025-09-09 21:21:32",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
-  },
-  {
-    "template": "6.png",
-    "percentage": 89.79,
-    "coordinates": {
-      "x": 911,
-      "y": 302
-    },
-    "time": "2025-09-09 21:21:32",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
-  },
-  {
-    "template": "7.png",
-    "percentage": 92.26,
-    "coordinates": {
-      "x": 907,
-      "y": 304
-    },
-    "time": "2025-09-09 21:21:32",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
+    "livesplit_current_time": "00:00:23.0040597",
+    "livesplit_attempt_count": null
   },
   {
     "template": "1.png",
-    "percentage": 98.6,
+    "percentage": 93.22,
     "coordinates": {
-      "x": 902,
+      "x": 3462,
       "y": 300
     },
-    "time": "2025-09-09 21:22:21",
+    "time": "2025-09-10 10:48:33",
     "screensize": {
       "width": 5120,
       "height": 1440
-    }
-  },
-  {
-    "template": "3.png",
-    "percentage": 98.48,
-    "coordinates": {
-      "x": 912,
-      "y": 301
     },
-    "time": "2025-09-09 21:22:21",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
-  },
-  {
-    "template": "4.png",
-    "percentage": 98.93,
-    "coordinates": {
-      "x": 902,
-      "y": 303
-    },
-    "time": "2025-09-09 21:22:21",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
-  },
-  {
-    "template": "6.png",
-    "percentage": 96.78,
-    "coordinates": {
-      "x": 911,
-      "y": 302
-    },
-    "time": "2025-09-09 21:22:21",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
-  },
-  {
-    "template": "7.png",
-    "percentage": 99.2,
-    "coordinates": {
-      "x": 907,
-      "y": 304
-    },
-    "time": "2025-09-09 21:22:21",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
+    "livesplit_current_time": "00:00:44.2512743",
+    "livesplit_attempt_count": null
   },
   {
     "template": "1.png",
-    "percentage": 95.57,
+    "percentage": 99.22,
     "coordinates": {
-      "x": 902,
+      "x": 3462,
       "y": 300
     },
-    "time": "2025-09-09 21:22:24",
+    "time": "2025-09-10 10:49:41",
     "screensize": {
       "width": 5120,
       "height": 1440
-    }
-  },
-  {
-    "template": "3.png",
-    "percentage": 96.98,
-    "coordinates": {
-      "x": 912,
-      "y": 301
     },
-    "time": "2025-09-09 21:22:24",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
-  },
-  {
-    "template": "4.png",
-    "percentage": 96.43,
-    "coordinates": {
-      "x": 902,
-      "y": 303
-    },
-    "time": "2025-09-09 21:22:24",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
-  },
-  {
-    "template": "6.png",
-    "percentage": 94.54,
-    "coordinates": {
-      "x": 911,
-      "y": 302
-    },
-    "time": "2025-09-09 21:22:24",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
-  },
-  {
-    "template": "7.png",
-    "percentage": 96.9,
-    "coordinates": {
-      "x": 907,
-      "y": 304
-    },
-    "time": "2025-09-09 21:22:24",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
+    "livesplit_current_time": "00:01:52.2601997",
+    "livesplit_attempt_count": null
   },
   {
     "template": "1.png",
-    "percentage": 71.96,
+    "percentage": 99.45,
     "coordinates": {
-      "x": 902,
+      "x": 3462,
       "y": 300
     },
-    "time": "2025-09-09 21:24:07",
+    "time": "2025-09-10 10:49:48",
     "screensize": {
       "width": 5120,
       "height": 1440
-    }
-  },
-  {
-    "template": "3.png",
-    "percentage": 75.19,
-    "coordinates": {
-      "x": 912,
-      "y": 301
     },
-    "time": "2025-09-09 21:24:07",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
-  },
-  {
-    "template": "4.png",
-    "percentage": 73.94,
-    "coordinates": {
-      "x": 902,
-      "y": 303
-    },
-    "time": "2025-09-09 21:24:07",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
-  },
-  {
-    "template": "6.png",
-    "percentage": 72.39,
-    "coordinates": {
-      "x": 911,
-      "y": 302
-    },
-    "time": "2025-09-09 21:24:07",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
-  },
-  {
-    "template": "7.png",
-    "percentage": 75.05,
-    "coordinates": {
-      "x": 907,
-      "y": 304
-    },
-    "time": "2025-09-09 21:24:07",
-    "screensize": {
-      "width": 5120,
-      "height": 1440
-    }
+    "livesplit_current_time": "00:01:59.3276110",
+    "livesplit_attempt_count": null
   },
   {
     "template": "1.png",
-    "percentage": 98.06,
+    "percentage": 83.12,
     "coordinates": {
-      "x": 902,
+      "x": 3462,
       "y": 300
     },
-    "time": "2025-09-09 21:35:44",
+    "time": "2025-09-10 10:50:07",
     "screensize": {
       "width": 5120,
       "height": 1440
-    }
+    },
+    "livesplit_current_time": "00:02:17.9431218",
+    "livesplit_attempt_count": null
   },
   {
     "template": "1.png",
-    "percentage": 99.36,
+    "percentage": 97.62,
     "coordinates": {
-      "x": 902,
+      "x": 3462,
       "y": 300
     },
-    "time": "2025-09-09 21:35:58",
+    "time": "2025-09-10 10:50:36",
     "screensize": {
       "width": 5120,
       "height": 1440
-    }
+    },
+    "livesplit_current_time": "00:02:47.5051920",
+    "livesplit_attempt_count": null
   },
   {
     "template": "1.png",
-    "percentage": 97.99,
+    "percentage": 94.39,
     "coordinates": {
-      "x": 902,
+      "x": 3462,
       "y": 300
     },
-    "time": "2025-09-09 21:36:44",
+    "time": "2025-09-10 10:51:36",
     "screensize": {
       "width": 5120,
       "height": 1440
-    }
+    },
+    "livesplit_current_time": "00:03:46.8438739",
+    "livesplit_attempt_count": null
   },
   {
     "template": "1.png",
-    "percentage": 95.15,
+    "percentage": 73.22,
     "coordinates": {
-      "x": 902,
+      "x": 3462,
       "y": 300
     },
-    "time": "2025-09-09 21:36:50",
+    "time": "2025-09-10 10:51:43",
     "screensize": {
       "width": 5120,
       "height": 1440
-    }
+    },
+    "livesplit_current_time": "00:03:54.0185639",
+    "livesplit_attempt_count": null
   },
   {
     "template": "1.png",
-    "percentage": 91.05,
+    "percentage": 93.69,
     "coordinates": {
-      "x": 902,
+      "x": 3462,
       "y": 300
     },
-    "time": "2025-09-09 21:37:11",
+    "time": "2025-09-10 10:52:03",
     "screensize": {
       "width": 5120,
       "height": 1440
-    }
+    },
+    "livesplit_current_time": "00:04:14.2197533",
+    "livesplit_attempt_count": null
   },
   {
     "template": "1.png",
-    "percentage": 96.05,
+    "percentage": 96.18,
     "coordinates": {
-      "x": 902,
+      "x": 3462,
       "y": 300
     },
-    "time": "2025-09-09 21:37:49",
+    "time": "2025-09-10 10:53:23",
     "screensize": {
       "width": 5120,
       "height": 1440
-    }
+    },
+    "livesplit_current_time": "00:05:34.5447959",
+    "livesplit_attempt_count": null
+  },
+  {
+    "template": "1.png",
+    "percentage": 93.36,
+    "coordinates": {
+      "x": 3462,
+      "y": 300
+    },
+    "time": "2025-09-10 10:53:57",
+    "screensize": {
+      "width": 5120,
+      "height": 1440
+    },
+    "livesplit_current_time": "00:06:07.8011737",
+    "livesplit_attempt_count": null
+  },
+  {
+    "template": "1.png",
+    "percentage": 91.41,
+    "coordinates": {
+      "x": 3462,
+      "y": 300
+    },
+    "time": "2025-09-10 10:54:17",
+    "screensize": {
+      "width": 5120,
+      "height": 1440
+    },
+    "livesplit_current_time": "00:06:27.8476689",
+    "livesplit_attempt_count": null
+  },
+  {
+    "template": "1.png",
+    "percentage": 99.45,
+    "coordinates": {
+      "x": 3462,
+      "y": 300
+    },
+    "time": "2025-09-10 10:55:20",
+    "screensize": {
+      "width": 5120,
+      "height": 1440
+    },
+    "livesplit_current_time": "00:07:31.5759980",
+    "livesplit_attempt_count": null
+  },
+  {
+    "template": "1.png",
+    "percentage": 87.6,
+    "coordinates": {
+      "x": 3462,
+      "y": 300
+    },
+    "time": "2025-09-10 10:56:35",
+    "screensize": {
+      "width": 5120,
+      "height": 1440
+    },
+    "livesplit_current_time": "00:08:46.5436905",
+    "livesplit_attempt_count": null
+  },
+  {
+    "template": "1.png",
+    "percentage": 97.42,
+    "coordinates": {
+      "x": 3462,
+      "y": 300
+    },
+    "time": "2025-09-10 10:57:45",
+    "screensize": {
+      "width": 5120,
+      "height": 1440
+    },
+    "livesplit_current_time": "00:09:49.3934801",
+    "livesplit_attempt_count": null
+  },
+  {
+    "template": "1.png",
+    "percentage": 97.97,
+    "coordinates": {
+      "x": 3462,
+      "y": 300
+    },
+    "time": "2025-09-10 10:58:10",
+    "screensize": {
+      "width": 5120,
+      "height": 1440
+    },
+    "livesplit_current_time": "00:10:13.9356201",
+    "livesplit_attempt_count": null
+  },
+  {
+    "template": "1.png",
+    "percentage": 76.44,
+    "coordinates": {
+      "x": 3462,
+      "y": 300
+    },
+    "time": "2025-09-10 10:58:21",
+    "screensize": {
+      "width": 5120,
+      "height": 1440
+    },
+    "livesplit_current_time": "00:10:25.2990277",
+    "livesplit_attempt_count": null
+  },
+  {
+    "template": "1.png",
+    "percentage": 98.16,
+    "coordinates": {
+      "x": 3462,
+      "y": 300
+    },
+    "time": "2025-09-10 10:59:13",
+    "screensize": {
+      "width": 5120,
+      "height": 1440
+    },
+    "livesplit_current_time": "00:11:17.1556672",
+    "livesplit_attempt_count": null
+  },
+  {
+    "template": "1.png",
+    "percentage": 98.9,
+    "coordinates": {
+      "x": 3462,
+      "y": 300
+    },
+    "time": "2025-09-10 11:00:00",
+    "screensize": {
+      "width": 5120,
+      "height": 1440
+    },
+    "livesplit_current_time": "00:12:03.9006562",
+    "livesplit_attempt_count": null
+  },
+  {
+    "template": "1.png",
+    "percentage": 97.06,
+    "coordinates": {
+      "x": 3462,
+      "y": 300
+    },
+    "time": "2025-09-10 11:00:08",
+    "screensize": {
+      "width": 5120,
+      "height": 1440
+    },
+    "livesplit_current_time": "00:12:12.5232364",
+    "livesplit_attempt_count": null
+  },
+  {
+    "template": "1.png",
+    "percentage": 98.08,
+    "coordinates": {
+      "x": 3462,
+      "y": 300
+    },
+    "time": "2025-09-10 11:00:54",
+    "screensize": {
+      "width": 5120,
+      "height": 1440
+    },
+    "livesplit_current_time": "00:12:58.5918774",
+    "livesplit_attempt_count": null
+  },
+  {
+    "template": "1.png",
+    "percentage": 94.44,
+    "coordinates": {
+      "x": 3462,
+      "y": 300
+    },
+    "time": "2025-09-10 11:01:04",
+    "screensize": {
+      "width": 5120,
+      "height": 1440
+    },
+    "livesplit_current_time": "00:13:08.5997571",
+    "livesplit_attempt_count": null
   }
 ]
