@@ -9,17 +9,24 @@ import asyncio
 from colorama import Fore, Back, Style, init
 import threading
 from http.server import BaseHTTPRequestHandler, HTTPServer
+import keyboard
+import uuid
 
 init(autoreset=True)
 
 markers_root = "./markers"
 screenshots_dir = "./screenshots_cache"
+manual_screenshots_dir = "./screenshots"
 log_file = "log.txt"
 matches_json_path = "./data/matches.json"
+manual_screenshots_json_path = "./data/manual_screenshots.json"
+keybindings_json_path = "./keybindings.json"
 
 os.makedirs(markers_root, exist_ok=True)
 os.makedirs(screenshots_dir, exist_ok=True)
+os.makedirs(manual_screenshots_dir, exist_ok=True)
 os.makedirs(os.path.dirname(matches_json_path), exist_ok=True)
+os.makedirs(os.path.dirname(manual_screenshots_json_path), exist_ok=True)
 
 templates = {}
 for root, dirs, files in os.walk(markers_root):
@@ -40,6 +47,69 @@ last_dump = time.time()
 from livesplit_api import LiveSplitClient
 
 livesplit_client = LiveSplitClient()
+
+
+def load_keybindings():
+    default_keybindings = {"f1": "imp", "f2": "soldier"}
+
+    try:
+        if os.path.exists(keybindings_json_path):
+            with open(keybindings_json_path, "r") as f:
+                return json.load(f)
+        else:
+            with open(keybindings_json_path, "w") as f:
+                json.dump(default_keybindings, f, indent=2)
+            return default_keybindings
+    except Exception:
+        return default_keybindings
+
+
+def save_manual_screenshot(category):
+    timestamp = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(
+        hours=2
+    )
+    ts_str = timestamp.strftime("%Y-%m-%d %H:%M:%S")
+    filename = f"{int(time.time()*1000)}_{uuid.uuid4().hex[:8]}.png"
+
+    category_dir = os.path.join(manual_screenshots_dir, f"{category}s")
+    os.makedirs(category_dir, exist_ok=True)
+
+    filepath = os.path.join(category_dir, filename)
+    screenshot = pyautogui.screenshot()
+    screenshot.save(filepath)
+
+    entry = {
+        "filename": filename,
+        "category": category,
+        "path": filepath.replace("\\", "/"),
+        "timestamp": ts_str,
+        "screensize": {"width": screenshot.width, "height": screenshot.height},
+    }
+
+    try:
+        if os.path.exists(manual_screenshots_json_path):
+            with open(manual_screenshots_json_path, "r") as f:
+                data = json.load(f)
+        else:
+            data = []
+    except Exception:
+        data = []
+
+    data.append(entry)
+
+    with open(manual_screenshots_json_path, "w") as f:
+        json.dump(data, f, indent=2)
+
+    log_event(f"Manual screenshot saved: {category} -> {filepath}")
+
+
+def setup_hotkeys():
+    keybindings = load_keybindings()
+
+    for key, category in keybindings.items():
+        keyboard.add_hotkey(key, lambda cat=category: save_manual_screenshot(cat))
+
+    log_event(f"Hotkeys configured: {keybindings}")
 
 
 def log_event(msg):
@@ -238,8 +308,11 @@ def start_status_server(host: str = "127.0.0.1", port: int = 5555):
     t = threading.Thread(target=serve, daemon=True)
     t.start()
 
+
 async def main_loop():
     global last_match_time
+    setup_hotkeys()
+
     try:
         while True:
             shot, screensize = get_full_screenshot()
