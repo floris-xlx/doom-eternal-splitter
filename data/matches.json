@@ -916,5 +916,95 @@
     "livesplit_current_time": "00:01:40.0221065",
     "livesplit_attempt_count": null,
     "run_id": 3
+  },
+  {
+    "template": "checkpoint/1.png",
+    "marker": "checkpoint",
+    "image": "1.png",
+    "percentage": 99.54,
+    "coordinates": {
+      "x": 3462,
+      "y": 300
+    },
+    "time": "2025-09-13 20:47:01",
+    "screensize": {
+      "width": 5120,
+      "height": 1440
+    },
+    "livesplit_current_time": "00:00:05.9068453",
+    "livesplit_attempt_count": null,
+    "run_id": 4
+  },
+  {
+    "template": "checkpoint/1.png",
+    "marker": "checkpoint",
+    "image": "1.png",
+    "percentage": 91.88,
+    "coordinates": {
+      "x": 3462,
+      "y": 300
+    },
+    "time": "2025-09-13 20:47:17",
+    "screensize": {
+      "width": 5120,
+      "height": 1440
+    },
+    "livesplit_current_time": "00:00:21.9140943",
+    "livesplit_attempt_count": null,
+    "run_id": 4
+  },
+  {
+    "template": "checkpoint/1.png",
+    "marker": "checkpoint",
+    "image": "1.png",
+    "percentage": 99.39,
+    "coordinates": {
+      "x": 3462,
+      "y": 300
+    },
+    "time": "2025-09-13 20:47:39",
+    "screensize": {
+      "width": 5120,
+      "height": 1440
+    },
+    "livesplit_current_time": "00:00:44.2178667",
+    "livesplit_attempt_count": null,
+    "run_id": 4
+  },
+  {
+    "template": "checkpoint/1.png",
+    "marker": "checkpoint",
+    "image": "1.png",
+    "percentage": 85.69,
+    "coordinates": {
+      "x": 3462,
+      "y": 300
+    },
+    "time": "2025-09-13 20:48:31",
+    "screensize": {
+      "width": 5120,
+      "height": 1440
+    },
+    "livesplit_current_time": "00:01:36.5461189",
+    "livesplit_attempt_count": null,
+    "run_id": 4
+  },
+  {
+    "template": "checkpoint/1.png",
+    "marker": "checkpoint",
+    "image": "1.png",
+    "percentage": 95.87,
+    "coordinates": {
+      "x": 3462,
+      "y": 300
+    },
+    "time": "2025-09-13 20:48:41",
+    "screensize": {
+      "width": 5120,
+      "height": 1440
+    },
+    "livesplit_current_time": "00:01:46.2254986",
+    "livesplit_attempt_count": null,
+    "run_id": 4
   }
 ]
