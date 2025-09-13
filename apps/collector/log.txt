@@ -1,0 +1,3 @@
+[2025-09-13 20:20:38 CEST] Hotkeys configured: {'f1': 'imp', 'f2': 'soldier'}
+[2025-09-13 20:20:45 CEST] Manual screenshot saved: imp -> ./screenshots\imps\1757787644338_aad9ef0b.png
+[2025-09-13 20:21:15 CEST] Manual screenshot saved: soldier -> ./screenshots\soldiers\1757787674300_92f55d21.png

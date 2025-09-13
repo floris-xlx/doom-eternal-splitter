@@ -209,4 +209,5 @@ __marimo__/
 
 screenshots_cache/*
 node_modules/*
-apps/web/*
+apps/web/.next
+apps/web/node_modules

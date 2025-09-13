@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 0 0% 7%;
+  --foreground: 0 0% 93%;
+  --primary: 0 0% 93%;
+  --secondary: 0 0% 60%;
+  --brand: 130 84% 44%;
+  --hover: 0 0% 15%;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+}
+

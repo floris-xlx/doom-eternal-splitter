@@ -9,6 +9,7 @@
   "scripts": {
     "dev:web": "pnpm --filter @doom/web dev",
     "build:web": "pnpm --filter @doom/web build",
-    "start:web": "pnpm --filter @doom/web start"
+    "start:web": "pnpm --filter @doom/web start",
+    "collector": "python /apps/collector/main.py"
   }
 }
