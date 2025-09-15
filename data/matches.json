@@ -1006,5 +1006,599 @@
     "livesplit_current_time": "00:01:46.2254986",
     "livesplit_attempt_count": null,
     "run_id": 4
+  },
+  {
+    "template": "checkpoint/1.png",
+    "marker": "checkpoint",
+    "image": "1.png",
+    "percentage": 99.09,
+    "coordinates": {
+      "x": 3462,
+      "y": 300
+    },
+    "time": "2025-09-13 20:52:37",
+    "screensize": {
+      "width": 5120,
+      "height": 1440
+    },
+    "livesplit_current_time": "00:00:06.8938011",
+    "livesplit_attempt_count": null,
+    "run_id": 5
+  },
+  {
+    "template": "checkpoint/1.png",
+    "marker": "checkpoint",
+    "image": "1.png",
+    "percentage": 96.5,
+    "coordinates": {
+      "x": 3462,
+      "y": 300
+    },
+    "time": "2025-09-13 20:52:55",
+    "screensize": {
+      "width": 5120,
+      "height": 1440
+    },
+    "livesplit_current_time": "00:00:25.0735970",
+    "livesplit_attempt_count": null,
+    "run_id": 5
+  },
+  {
+    "template": "checkpoint/1.png",
+    "marker": "checkpoint",
+    "image": "1.png",
+    "percentage": 99.16,
+    "coordinates": {
+      "x": 3462,
+      "y": 300
+    },
+    "time": "2025-09-13 20:53:15",
+    "screensize": {
+      "width": 5120,
+      "height": 1440
+    },
+    "livesplit_current_time": "00:00:45.0773075",
+    "livesplit_attempt_count": null,
+    "run_id": 5
+  },
+  {
+    "template": "checkpoint/1.png",
+    "marker": "checkpoint",
+    "image": "1.png",
+    "percentage": 98.73,
+    "coordinates": {
+      "x": 3462,
+      "y": 300
+    },
+    "time": "2025-09-13 20:54:00",
+    "screensize": {
+      "width": 5120,
+      "height": 1440
+    },
+    "livesplit_current_time": "00:01:30.0059437",
+    "livesplit_attempt_count": null,
+    "run_id": 5
+  },
+  {
+    "template": "checkpoint/1.png",
+    "marker": "checkpoint",
+    "image": "1.png",
+    "percentage": 98.11,
+    "coordinates": {
+      "x": 3462,
+      "y": 300
+    },
+    "time": "2025-09-13 20:54:29",
+    "screensize": {
+      "width": 5120,
+      "height": 1440
+    },
+    "livesplit_current_time": "00:01:59.1891202",
+    "livesplit_attempt_count": null,
+    "run_id": 5
+  },
+  {
+    "template": "checkpoint/1.png",
+    "marker": "checkpoint",
+    "image": "1.png",
+    "percentage": 99.56,
+    "coordinates": {
+      "x": 3462,
+      "y": 300
+    },
+    "time": "2025-09-13 20:55:24",
+    "screensize": {
+      "width": 5120,
+      "height": 1440
+    },
+    "livesplit_current_time": "00:00:05.4971708",
+    "livesplit_attempt_count": null,
+    "run_id": 6
+  },
+  {
+    "template": "checkpoint/1.png",
+    "marker": "checkpoint",
+    "image": "1.png",
+    "percentage": 99.33,
+    "coordinates": {
+      "x": 3462,
+      "y": 300
+    },
+    "time": "2025-09-13 20:55:39",
+    "screensize": {
+      "width": 5120,
+      "height": 1440
+    },
+    "livesplit_current_time": "00:00:20.1018222",
+    "livesplit_attempt_count": null,
+    "run_id": 6
+  },
+  {
+    "template": "checkpoint/1.png",
+    "marker": "checkpoint",
+    "image": "1.png",
+    "percentage": 98.82,
+    "coordinates": {
+      "x": 3462,
+      "y": 300
+    },
+    "time": "2025-09-13 20:55:53",
+    "screensize": {
+      "width": 5120,
+      "height": 1440
+    },
+    "livesplit_current_time": "00:00:34.0521292",
+    "livesplit_attempt_count": null,
+    "run_id": 6
+  },
+  {
+    "template": "checkpoint/1.png",
+    "marker": "checkpoint",
+    "image": "1.png",
+    "percentage": 99.57,
+    "coordinates": {
+      "x": 3462,
+      "y": 300
+    },
+    "time": "2025-09-13 20:57:40",
+    "screensize": {
+      "width": 5120,
+      "height": 1440
+    },
+    "livesplit_current_time": "00:00:05.7209318",
+    "livesplit_attempt_count": null,
+    "run_id": 7
+  },
+  {
+    "template": "checkpoint/1.png",
+    "marker": "checkpoint",
+    "image": "1.png",
+    "percentage": 98.92,
+    "coordinates": {
+      "x": 3462,
+      "y": 300
+    },
+    "time": "2025-09-13 20:57:54",
+    "screensize": {
+      "width": 5120,
+      "height": 1440
+    },
+    "livesplit_current_time": "00:00:19.8048175",
+    "livesplit_attempt_count": null,
+    "run_id": 7
+  },
+  {
+    "template": "checkpoint/1.png",
+    "marker": "checkpoint",
+    "image": "1.png",
+    "percentage": 99.07,
+    "coordinates": {
+      "x": 3462,
+      "y": 300
+    },
+    "time": "2025-09-13 20:58:12",
+    "screensize": {
+      "width": 5120,
+      "height": 1440
+    },
+    "livesplit_current_time": "00:00:37.6923179",
+    "livesplit_attempt_count": null,
+    "run_id": 7
+  },
+  {
+    "template": "checkpoint/1.png",
+    "marker": "checkpoint",
+    "image": "1.png",
+    "percentage": 90.34,
+    "coordinates": {
+      "x": 3462,
+      "y": 300
+    },
+    "time": "2025-09-13 20:59:09",
+    "screensize": {
+      "width": 5120,
+      "height": 1440
+    },
+    "livesplit_current_time": "00:01:35.0508419",
+    "livesplit_attempt_count": null,
+    "run_id": 7
+  },
+  {
+    "template": "checkpoint/1.png",
+    "marker": "checkpoint",
+    "image": "1.png",
+    "percentage": 98.48,
+    "coordinates": {
+      "x": 3462,
+      "y": 300
+    },
+    "time": "2025-09-13 20:59:19",
+    "screensize": {
+      "width": 5120,
+      "height": 1440
+    },
+    "livesplit_current_time": "00:01:44.8266369",
+    "livesplit_attempt_count": null,
+    "run_id": 7
+  },
+  {
+    "template": "checkpoint/1.png",
+    "marker": "checkpoint",
+    "image": "1.png",
+    "percentage": 96.82,
+    "coordinates": {
+      "x": 3462,
+      "y": 300
+    },
+    "time": "2025-09-13 20:59:40",
+    "screensize": {
+      "width": 5120,
+      "height": 1440
+    },
+    "livesplit_current_time": "00:02:05.6183480",
+    "livesplit_attempt_count": null,
+    "run_id": 7
+  },
+  {
+    "template": "checkpoint/1.png",
+    "marker": "checkpoint",
+    "image": "1.png",
+    "percentage": 98.62,
+    "coordinates": {
+      "x": 3462,
+      "y": 300
+    },
+    "time": "2025-09-13 21:00:12",
+    "screensize": {
+      "width": 5120,
+      "height": 1440
+    },
+    "livesplit_current_time": "00:02:38.0213411",
+    "livesplit_attempt_count": null,
+    "run_id": 7
+  },
+  {
+    "template": "checkpoint/1.png",
+    "marker": "checkpoint",
+    "image": "1.png",
+    "percentage": 99.48,
+    "coordinates": {
+      "x": 3462,
+      "y": 300
+    },
+    "time": "2025-09-13 21:00:22",
+    "screensize": {
+      "width": 5120,
+      "height": 1440
+    },
+    "livesplit_current_time": "00:02:48.0681296",
+    "livesplit_attempt_count": null,
+    "run_id": 7
+  },
+  {
+    "template": "checkpoint/1.png",
+    "marker": "checkpoint",
+    "image": "1.png",
+    "percentage": 99.56,
+    "coordinates": {
+      "x": 3462,
+      "y": 300
+    },
+    "time": "2025-09-13 21:05:05",
+    "screensize": {
+      "width": 5120,
+      "height": 1440
+    },
+    "livesplit_current_time": "00:00:05.7499332",
+    "livesplit_attempt_count": null,
+    "run_id": 8
+  },
+  {
+    "template": "checkpoint/1.png",
+    "marker": "checkpoint",
+    "image": "1.png",
+    "percentage": 94.56,
+    "coordinates": {
+      "x": 3462,
+      "y": 300
+    },
+    "time": "2025-09-13 21:05:19",
+    "screensize": {
+      "width": 5120,
+      "height": 1440
+    },
+    "livesplit_current_time": "00:00:20.1798591",
+    "livesplit_attempt_count": null,
+    "run_id": 8
+  },
+  {
+    "template": "checkpoint/1.png",
+    "marker": "checkpoint",
+    "image": "1.png",
+    "percentage": 92.73,
+    "coordinates": {
+      "x": 3462,
+      "y": 300
+    },
+    "time": "2025-09-13 21:05:37",
+    "screensize": {
+      "width": 5120,
+      "height": 1440
+    },
+    "livesplit_current_time": "00:00:38.3222439",
+    "livesplit_attempt_count": null,
+    "run_id": 8
+  },
+  {
+    "template": "checkpoint/1.png",
+    "marker": "checkpoint",
+    "image": "1.png",
+    "percentage": 98.84,
+    "coordinates": {
+      "x": 3462,
+      "y": 300
+    },
+    "time": "2025-09-13 21:06:35",
+    "screensize": {
+      "width": 5120,
+      "height": 1440
+    },
+    "livesplit_current_time": "00:01:35.7736334",
+    "livesplit_attempt_count": null,
+    "run_id": 8
+  },
+  {
+    "template": "checkpoint/1.png",
+    "marker": "checkpoint",
+    "image": "1.png",
+    "percentage": 99.53,
+    "coordinates": {
+      "x": 3462,
+      "y": 300
+    },
+    "time": "2025-09-13 21:07:50",
+    "screensize": {
+      "width": 5120,
+      "height": 1440
+    },
+    "livesplit_current_time": "00:00:06.1000673",
+    "livesplit_attempt_count": null,
+    "run_id": 9
+  },
+  {
+    "template": "checkpoint/1.png",
+    "marker": "checkpoint",
+    "image": "1.png",
+    "percentage": 90.23,
+    "coordinates": {
+      "x": 3462,
+      "y": 300
+    },
+    "time": "2025-09-13 21:08:04",
+    "screensize": {
+      "width": 5120,
+      "height": 1440
+    },
+    "livesplit_current_time": "00:00:20.0287241",
+    "livesplit_attempt_count": null,
+    "run_id": 9
+  },
+  {
+    "template": "checkpoint/1.png",
+    "marker": "checkpoint",
+    "image": "1.png",
+    "percentage": 98.36,
+    "coordinates": {
+      "x": 3462,
+      "y": 300
+    },
+    "time": "2025-09-13 21:08:18",
+    "screensize": {
+      "width": 5120,
+      "height": 1440
+    },
+    "livesplit_current_time": "00:00:34.4943084",
+    "livesplit_attempt_count": null,
+    "run_id": 9
+  },
+  {
+    "template": "checkpoint/1.png",
+    "marker": "checkpoint",
+    "image": "1.png",
+    "percentage": 98.62,
+    "coordinates": {
+      "x": 3462,
+      "y": 300
+    },
+    "time": "2025-09-13 21:08:57",
+    "screensize": {
+      "width": 5120,
+      "height": 1440
+    },
+    "livesplit_current_time": "00:01:13.1011142",
+    "livesplit_attempt_count": null,
+    "run_id": 9
+  },
+  {
+    "template": "checkpoint/1.png",
+    "marker": "checkpoint",
+    "image": "1.png",
+    "percentage": 99.36,
+    "coordinates": {
+      "x": 3462,
+      "y": 300
+    },
+    "time": "2025-09-13 21:10:02",
+    "screensize": {
+      "width": 5120,
+      "height": 1440
+    },
+    "livesplit_current_time": "00:00:07.3593303",
+    "livesplit_attempt_count": null,
+    "run_id": 10
+  },
+  {
+    "template": "checkpoint/1.png",
+    "marker": "checkpoint",
+    "image": "1.png",
+    "percentage": 99.26,
+    "coordinates": {
+      "x": 3462,
+      "y": 300
+    },
+    "time": "2025-09-13 21:10:16",
+    "screensize": {
+      "width": 5120,
+      "height": 1440
+    },
+    "livesplit_current_time": "00:00:21.9469455",
+    "livesplit_attempt_count": null,
+    "run_id": 10
+  },
+  {
+    "template": "checkpoint/1.png",
+    "marker": "checkpoint",
+    "image": "1.png",
+    "percentage": 98.27,
+    "coordinates": {
+      "x": 3462,
+      "y": 300
+    },
+    "time": "2025-09-13 21:10:32",
+    "screensize": {
+      "width": 5120,
+      "height": 1440
+    },
+    "livesplit_current_time": "00:00:38.0066011",
+    "livesplit_attempt_count": null,
+    "run_id": 10
+  },
+  {
+    "template": "checkpoint/1.png",
+    "marker": "checkpoint",
+    "image": "1.png",
+    "percentage": 98.05,
+    "coordinates": {
+      "x": 3462,
+      "y": 300
+    },
+    "time": "2025-09-13 21:11:20",
+    "screensize": {
+      "width": 5120,
+      "height": 1440
+    },
+    "livesplit_current_time": "00:01:25.5522636",
+    "livesplit_attempt_count": null,
+    "run_id": 10
+  },
+  {
+    "template": "checkpoint/1.png",
+    "marker": "checkpoint",
+    "image": "1.png",
+    "percentage": 98.49,
+    "coordinates": {
+      "x": 3462,
+      "y": 300
+    },
+    "time": "2025-09-13 21:11:30",
+    "screensize": {
+      "width": 5120,
+      "height": 1440
+    },
+    "livesplit_current_time": "00:01:35.1801798",
+    "livesplit_attempt_count": null,
+    "run_id": 10
+  },
+  {
+    "template": "checkpoint/1.png",
+    "marker": "checkpoint",
+    "image": "1.png",
+    "percentage": 99.49,
+    "coordinates": {
+      "x": 3462,
+      "y": 300
+    },
+    "time": "2025-09-13 21:12:33",
+    "screensize": {
+      "width": 5120,
+      "height": 1440
+    },
+    "livesplit_current_time": "00:00:06.8005873",
+    "livesplit_attempt_count": null,
+    "run_id": 11
+  },
+  {
+    "template": "checkpoint/1.png",
+    "marker": "checkpoint",
+    "image": "1.png",
+    "percentage": 97.2,
+    "coordinates": {
+      "x": 3462,
+      "y": 300
+    },
+    "time": "2025-09-13 21:12:47",
+    "screensize": {
+      "width": 5120,
+      "height": 1440
+    },
+    "livesplit_current_time": "00:00:21.3429678",
+    "livesplit_attempt_count": null,
+    "run_id": 11
+  },
+  {
+    "template": "checkpoint/1.png",
+    "marker": "checkpoint",
+    "image": "1.png",
+    "percentage": 98.69,
+    "coordinates": {
+      "x": 3462,
+      "y": 300
+    },
+    "time": "2025-09-13 21:13:06",
+    "screensize": {
+      "width": 5120,
+      "height": 1440
+    },
+    "livesplit_current_time": "00:00:39.6147139",
+    "livesplit_attempt_count": null,
+    "run_id": 11
+  },
+  {
+    "template": "checkpoint/1.png",
+    "marker": "checkpoint",
+    "image": "1.png",
+    "percentage": 99.22,
+    "coordinates": {
+      "x": 3462,
+      "y": 300
+    },
+    "time": "2025-09-13 21:13:42",
+    "screensize": {
+      "width": 5120,
+      "height": 1440
+    },
+    "livesplit_current_time": "00:01:16.1137849",
+    "livesplit_attempt_count": null,
+    "run_id": 11
   }
 ]

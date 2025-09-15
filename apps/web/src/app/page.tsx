@@ -8,6 +8,7 @@ import {
   TrendingUp as TrendingUpIcon,
   Link2 as LinkIcon,
   Clock3 as ClockIcon,
+  Images as ImagesIcon,
 } from "lucide-react";
 import {
   ResponsiveContainer,
@@ -85,12 +86,20 @@ function lerpColor(
 
 export default function HomePage() {
   const [data, setData] = useState<Match[]>([]);
+  const [shots, setShots] = useState<{ name: string; size: number; mtime: number }[]>([]);
 
   useEffect(() => {
     fetch("/api/data")
       .then((r) => r.json())
       .then(setData)
       .catch(() => setData([]));
+  }, []);
+
+  useEffect(() => {
+    fetch("/api/screenshots")
+      .then((r) => r.json())
+      .then((list) => Array.isArray(list) ? setShots(list) : setShots([]))
+      .catch(() => setShots([]));
   }, []);
 
   const templates = useMemo(
@@ -268,6 +277,39 @@ export default function HomePage() {
           </span>
         </div>
       </section>
+      <section className="space-y-2">
+        <h2 className="text-xl font-semibold text-primary flex items-center gap-2">
+          <ImagesIcon className="w-5 h-5" />
+          Screenshots Cache
+        </h2>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+          {shots.map((f) => (
+            <a
+              key={f.name}
+              href={`/api/screenshots/${encodeURIComponent(f.name)}`}
+              target="_blank"
+              rel="noreferrer"
+              className="group rounded-sm bg-foreground/0 shadow-none focus:outline-none focus:ring-0 hover:bg-hover"
+            >
+              <div className="aspect-video w-full overflow-hidden rounded-sm bg-hover">
+                <img
+                  src={`/api/screenshots/${encodeURIComponent(f.name)}`}
+                  alt={f.name}
+                  className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform"
+                  loading="lazy"
+                />
+              </div>
+              <div className="px-1 py-1 text-xs truncate text-secondary">
+                {f.name}
+              </div>
+            </a>
+          ))}
+          {!shots.length && (
+            <div className="text-secondary">No screenshots found.</div>
+          )}
+        </div>
+      </section>
+
       <section className="space-y-2">
         <h2 className="text-xl font-semibold text-primary flex items-center gap-2">
           <MapIcon className="w-5 h-5" />
