@@ -47,7 +47,10 @@ for root, dirs, files in os.walk(markers_root):
 log_buffer = []
 last_dump = time.time()
 
-from .livesplit_api import LiveSplitClient
+try:
+    from .livesplit_api import LiveSplitClient
+except ImportError:
+    from livesplit_api import LiveSplitClient
 
 livesplit_client = LiveSplitClient()
 
@@ -145,13 +148,16 @@ def match_templates(full_screenshot):
     region_img, (offset_x, offset_y) = get_match_region(full_screenshot)
     matched = []
     screen_np = cv2.cvtColor(np.array(region_img), cv2.COLOR_RGB2BGR)
+    screen_h, screen_w = screen_np.shape[:2]
     for name, tmpl in templates.items():
         if tmpl is None:
+            continue
+        t_h, t_w = tmpl.shape[:2]
+        if t_h > screen_h or t_w > screen_w:
             continue
         res = cv2.matchTemplate(screen_np, tmpl, cv2.TM_CCOEFF_NORMED)
         min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
         if max_val >= 0.7:
-            t_h, t_w = tmpl.shape[:2]
             center_x = max_loc[0] + t_w // 2 + offset_x
             center_y = max_loc[1] + t_h // 2 + offset_y
             matched.append(

@@ -2,3 +2,5 @@ colorama
 cv2
 pyautogui
 numpy
+pyqt5
+mouse

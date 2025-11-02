@@ -9,6 +9,11 @@ import {
   Link2 as LinkIcon,
   Clock3 as ClockIcon,
   Images as ImagesIcon,
+  Zap,
+  Target,
+  Gauge,
+  PieChart,
+  LineChart,
 } from "lucide-react";
 import {
   ResponsiveContainer,
@@ -26,7 +31,14 @@ import {
   AreaChart,
   Area,
   ReferenceLine,
+  PieChart as RePieChart,
+  Pie,
+  Cell,
+  ComposedChart,
 } from "recharts";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 type Match = {
   template: string;
@@ -83,6 +95,22 @@ function lerpColor(
   const bch = Math.round(a[2] + (b[2] - a[2]) * t);
   return `rgb(${r}, ${g}, ${bch})`;
 }
+
+const CustomTooltip = ({ active, payload, labelFormatter }: any) => {
+  if (!active || !payload?.length) return null;
+  return (
+    <div className="rounded-sm border bg-card p-3 text-sm shadow-none">
+      {labelFormatter && <div className="mb-2 font-medium">{labelFormatter(payload[0].payload)}</div>}
+      {payload.map((entry: any, idx: number) => (
+        <div key={idx} className="flex items-center gap-2" style={{ color: entry.color }}>
+          <div className="h-2 w-2 rounded-full" style={{ backgroundColor: entry.color }} />
+          <span>{entry.name}:</span>
+          <span className="font-medium">{typeof entry.value === 'number' ? entry.value.toFixed(2) : entry.value}</span>
+        </div>
+      ))}
+    </div>
+  );
+};
 
 export default function HomePage() {
   const [data, setData] = useState<Match[]>([]);
@@ -221,9 +249,97 @@ export default function HomePage() {
     return sum / intervals.length;
   }, [intervals]);
 
-  const liveStatus = useMemo(() => {
-    return "unknown" as const;
-  }, []);
+  const templateDistribution = useMemo(() => {
+    const counts = new Map<string, number>();
+    templates.forEach((tpl) => counts.set(tpl, 0));
+    for (const d of enriched) {
+      counts.set(d.template, (counts.get(d.template) || 0) + 1);
+    }
+    return Array.from(counts.entries())
+      .map(([name, value]) => ({ name, value }))
+      .sort((a, b) => b.value - a.value);
+  }, [enriched, templates]);
+
+  const percentageDistribution = useMemo(() => {
+    const buckets = [0, 50, 60, 70, 80, 90, 95, 100];
+    const counts = new Map<number, number>();
+    buckets.forEach((b) => counts.set(b, 0));
+    for (const d of enriched) {
+      const bucket = buckets.find((b, i) => d.percentage < buckets[i + 1] || i === buckets.length - 1) || 0;
+      counts.set(bucket, (counts.get(bucket) || 0) + 1);
+    }
+    return Array.from(counts.entries())
+      .map(([range, count]) => ({
+        range: `${range}-${buckets[buckets.indexOf(range) + 1] || 100}%`,
+        count,
+      }))
+      .filter((d) => d.count > 0);
+  }, [enriched]);
+
+  const markerStats = useMemo(() => {
+    const markerCounts = new Map<string, number>();
+    for (const d of enriched) {
+      if (d.marker) {
+        markerCounts.set(d.marker, (markerCounts.get(d.marker) || 0) + 1);
+      }
+    }
+    return Array.from(markerCounts.entries())
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10);
+  }, [enriched]);
+
+  const runStats = useMemo(() => {
+    const runs = new Map<number, { count: number; start: number; end: number }>();
+    for (const d of enriched) {
+      if (typeof d.livesplitSeconds !== "number") continue;
+      const id = d.runId ?? -1;
+      const existing = runs.get(id) || { count: 0, start: Infinity, end: -Infinity };
+      existing.count++;
+      existing.start = Math.min(existing.start, d.livesplitSeconds);
+      existing.end = Math.max(existing.end, d.livesplitSeconds);
+      runs.set(id, existing);
+    }
+    return Array.from(runs.values())
+      .map((r) => ({
+        ...r,
+        duration: r.end - r.start,
+      }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10);
+  }, [enriched]);
+
+  const hourlyDistribution = useMemo(() => {
+    const hours = new Map<number, number>();
+    for (let i = 0; i < 24; i++) hours.set(i, 0);
+    for (const d of enriched) {
+      const hour = d.date.getHours();
+      hours.set(hour, (hours.get(hour) || 0) + 1);
+    }
+    return Array.from(hours.entries())
+      .map(([hour, count]) => ({
+        hour: `${hour.toString().padStart(2, "0")}:00`,
+        count,
+      }));
+  }, [enriched]);
+
+  const detectionRate = useMemo(() => {
+    if (!enriched.length) return [];
+    const sorted = [...enriched].sort((a, b) => a.date.getTime() - b.date.getTime());
+    const windowSize = Math.max(1, Math.floor(sorted.length / 50));
+    const result: { time: string; rate: number }[] = [];
+    for (let i = 0; i < sorted.length; i += windowSize) {
+      const window = sorted.slice(i, Math.min(i + windowSize, sorted.length));
+      if (window.length < 2) continue;
+      const duration = (window[window.length - 1].date.getTime() - window[0].date.getTime()) / 1000;
+      const rate = duration > 0 ? window.length / duration : 0;
+      result.push({
+        time: window[0].date.toLocaleTimeString(),
+        rate: rate * 60,
+      });
+    }
+    return result;
+  }, [enriched]);
 
   const [liveConnected, setLiveConnected] = useState<boolean | null>(null);
   useEffect(() => {
@@ -247,247 +363,537 @@ export default function HomePage() {
     };
   }, []);
 
+  const stats = useMemo(() => {
+    const withLive = enriched.filter((d) => typeof d.livesplitSeconds === "number");
+    return {
+      total: enriched.length,
+      withLiveSplit: withLive.length,
+      templates: templates.length,
+      runs: new Set(enriched.map((d) => d.runId).filter((id): id is number => id !== null)).size,
+      avgPercentage: enriched.reduce((sum, d) => sum + d.percentage, 0) / enriched.length || 0,
+    };
+  }, [enriched, templates]);
+
   return (
-    <main className="p-6 space-y-8">
-      <section className="space-y-2">
-        <div
-          className={`inline-flex items-center gap-2 px-2 py-1 rounded-sm shadow-none ${
-            liveConnected ?? false ? "text-brand" : "text-secondary"
-          } bg-foreground/0`}
-        >
-          <LinkIcon className="w-4 h-4" />
-          <span
-            className={`${
-              liveConnected ?? false ? "bg-brand" : "bg-hover"
-            } w-2 h-2 rounded-full`}
-          />
-          <span>
-            {liveConnected === null
-              ? "LiveSplit: Unknown"
-              : liveConnected
-              ? "LiveSplit: Connected"
-              : "LiveSplit: Disconnected"}
-          </span>
+    <main className="p-6 space-y-6">
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h1 className="text-3xl font-bold text-primary">Speedrun Analytics</h1>
+          <div className="flex items-center gap-3">
+            <Badge variant={liveConnected ? "default" : "secondary"} className="gap-2">
+              <LinkIcon className="w-3 h-3" />
+              {liveConnected === null
+                ? "LiveSplit: Unknown"
+                : liveConnected
+                ? "Connected"
+                : "Disconnected"}
+            </Badge>
+          </div>
         </div>
-        <div className="inline-flex items-center gap-2 px-2 py-1 rounded-sm shadow-none text-secondary bg-foreground/0">
-          <ClockIcon className="w-4 h-4" />
-          <span>Avg interval between detections:</span>
-          <span className="text-primary">
-            {avgInterval == null ? "n/a" : secondsToLabel(avgInterval)}
-          </span>
-        </div>
-      </section>
-      <section className="space-y-2">
-        <h2 className="text-xl font-semibold text-primary flex items-center gap-2">
-          <ImagesIcon className="w-5 h-5" />
-          Screenshots Cache
-        </h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-          {shots.map((f) => (
-            <a
-              key={f.name}
-              href={`/api/screenshots/${encodeURIComponent(f.name)}`}
-              target="_blank"
-              rel="noreferrer"
-              className="group rounded-sm bg-foreground/0 shadow-none focus:outline-none focus:ring-0 hover:bg-hover"
-            >
-              <div className="aspect-video w-full overflow-hidden rounded-sm bg-hover">
-                <img
-                  src={`/api/screenshots/${encodeURIComponent(f.name)}`}
-                  alt={f.name}
-                  className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform"
-                  loading="lazy"
-                />
-              </div>
-              <div className="px-1 py-1 text-xs truncate text-secondary">
-                {f.name}
-              </div>
-            </a>
-          ))}
-          {!shots.length && (
-            <div className="text-secondary">No screenshots found.</div>
-          )}
-        </div>
-      </section>
 
-      <section className="space-y-2">
-        <h2 className="text-xl font-semibold text-primary flex items-center gap-2">
-          <MapIcon className="w-5 h-5" />
-          Coordinate Heatmap by LiveSplit Time
-        </h2>
-        <div className="w-full rounded-sm bg-foreground/0">
-          <ResponsiveContainer width="100%" height={300}>
-            <ScatterChart margin={{ top: 8, right: 16, bottom: 16, left: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis
-                type="number"
-                dataKey="x"
-                name="X"
-                tick={{ className: "text-secondary" }}
-              />
-              <YAxis
-                type="number"
-                dataKey="y"
-                name="Y"
-                tick={{ className: "text-secondary" }}
-              />
-              <ReTooltip
-                cursor={{ strokeDasharray: "3 3" }}
-                content={({ active, payload }) => {
-                  if (!active || !payload?.length) return null as any;
-                  const p = payload[0].payload as any;
-                  return (
-                    <div className="rounded-sm bg-background text-foreground px-2 py-1 text-sm shadow-none">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardDescription>Total Detections</CardDescription>
+              <CardTitle className="text-2xl">{stats.total.toLocaleString()}</CardTitle>
+            </CardHeader>
+          </Card>
+          <Card>
+            <CardHeader className="pb-3">
+              <CardDescription>With LiveSplit</CardDescription>
+              <CardTitle className="text-2xl">{stats.withLiveSplit.toLocaleString()}</CardTitle>
+            </CardHeader>
+          </Card>
+          <Card>
+            <CardHeader className="pb-3">
+              <CardDescription>Templates</CardDescription>
+              <CardTitle className="text-2xl">{stats.templates}</CardTitle>
+            </CardHeader>
+          </Card>
+          <Card>
+            <CardHeader className="pb-3">
+              <CardDescription>Avg Interval</CardDescription>
+              <CardTitle className="text-2xl">
+                {avgInterval == null ? "n/a" : secondsToLabel(avgInterval)}
+              </CardTitle>
+            </CardHeader>
+          </Card>
+        </div>
+      </div>
+
+      <Tabs defaultValue="overview" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="charts">Charts</TabsTrigger>
+          <TabsTrigger value="analysis">Analysis</TabsTrigger>
+          <TabsTrigger value="screenshots">Screenshots</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="overview" className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <MapIcon className="w-5 h-5" />
+                  Coordinate Heatmap
+                </CardTitle>
+                <CardDescription>Detections colored by LiveSplit time</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <ScatterChart margin={{ top: 8, right: 16, bottom: 16, left: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis
+                      type="number"
+                      dataKey="x"
+                      tick={{ fill: "hsl(var(--muted-foreground))" }}
+                      stroke="hsl(var(--border))"
+                    />
+                    <YAxis
+                      type="number"
+                      dataKey="y"
+                      tick={{ fill: "hsl(var(--muted-foreground))" }}
+                      stroke="hsl(var(--border))"
+                    />
+                    <ReTooltip
+                      cursor={{ strokeDasharray: "3 3" }}
+                      content={({ active, payload }) => {
+                        if (!active || !payload?.length) return null as any;
+                        const p = payload[0].payload as any;
+                        return (
+                          <div className="rounded-sm border bg-card p-3 text-sm shadow-none">
+                            <div className="font-medium">X: {p.x}, Y: {p.y}</div>
+                            <div>LiveSplit: {secondsToLabel(p.live)}</div>
+                            <div>Match: {p.pct.toFixed(2)}%</div>
+                          </div>
+                        ) as any;
+                      }}
+                    />
+                    <Scatter
+                      name="detections"
+                      data={heatmapPoints}
+                      shape={(props: any) => {
+                        const { cx, cy, payload } = props;
+                        return <circle cx={cx} cy={cy} r={3} fill={payload.color} />;
+                      }}
+                    />
+                  </ScatterChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <PieChart className="w-5 h-5" />
+                  Template Distribution
+                </CardTitle>
+                <CardDescription>Detection count by template</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <RePieChart>
+                    <ReTooltip content={<CustomTooltip />} />
+                    <Pie
+                      data={templateDistribution}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      {templateDistribution.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={palette[index % palette.length]} />
+                      ))}
+                    </Pie>
+                  </RePieChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="charts" className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <ActivityIcon className="w-5 h-5" />
+                  Percentage vs LiveSplit Time
+                </CardTitle>
+                <CardDescription>Match percentage over run time</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <ReLineChart margin={{ top: 8, right: 16, bottom: 16, left: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis
+                      type="number"
+                      dataKey="live"
+                      tickFormatter={secondsToLabel}
+                      tick={{ fill: "hsl(var(--muted-foreground))" }}
+                      stroke="hsl(var(--border))"
+                    />
+                    <YAxis
+                      domain={[0, 100]}
+                      tick={{ fill: "hsl(var(--muted-foreground))" }}
+                      stroke="hsl(var(--border))"
+                    />
+                    <ReTooltip
+                      labelFormatter={(l) => secondsToLabel(Number(l))}
+                      content={<CustomTooltip labelFormatter={(p: any) => secondsToLabel(p.live)} />}
+                    />
+                    <ReLegend />
+                    {[...byTemplate.entries()].map(([tpl, arr], i) => (
+                      <Line
+                        key={tpl}
+                        type="monotone"
+                        dataKey="pct"
+                        name={tpl}
+                        data={arr}
+                        stroke={palette[i % palette.length]}
+                        dot={false}
+                        strokeWidth={2}
+                      />
+                    ))}
+                    <ReferenceLine y={100} stroke="hsl(var(--brand))" strokeDasharray="4 4" />
+                  </ReLineChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingUpIcon className="w-5 h-5" />
+                  Cumulative Detections
+                </CardTitle>
+                <CardDescription>Total detections over LiveSplit time</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <AreaChart
+                    data={cumulativeLive}
+                    margin={{ top: 8, right: 16, bottom: 16, left: 0 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis
+                      dataKey="live"
+                      tickFormatter={secondsToLabel}
+                      tick={{ fill: "hsl(var(--muted-foreground))" }}
+                      stroke="hsl(var(--border))"
+                    />
+                    <YAxis
+                      allowDecimals={false}
+                      tick={{ fill: "hsl(var(--muted-foreground))" }}
+                      stroke="hsl(var(--border))"
+                    />
+                    <ReTooltip
+                      labelFormatter={(l) => secondsToLabel(Number(l))}
+                      content={<CustomTooltip labelFormatter={(p: any) => secondsToLabel(p.live)} />}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="cum"
+                      stroke="hsl(var(--brand))"
+                      fill="hsl(var(--brand))"
+                      fillOpacity={0.2}
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <BarChart3 className="w-5 h-5" />
+                  Detections per Real-Time Minute
+                </CardTitle>
+                <CardDescription>Detection frequency by time of day</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart
+                    data={perRtMinute}
+                    margin={{ top: 8, right: 16, bottom: 16, left: 0 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis
+                      dataKey="minute"
+                      tick={{ fill: "hsl(var(--muted-foreground))" }}
+                      angle={-30}
+                      height={50}
+                      textAnchor="end"
+                      stroke="hsl(var(--border))"
+                    />
+                    <YAxis
+                      allowDecimals={false}
+                      tick={{ fill: "hsl(var(--muted-foreground))" }}
+                      stroke="hsl(var(--border))"
+                    />
+                    <ReTooltip content={<CustomTooltip />} />
+                    <Bar dataKey="count" fill="hsl(var(--brand))" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <TimerIcon className="w-5 h-5" />
+                  Detections per LiveSplit Minute
+                </CardTitle>
+                <CardDescription>Detection frequency during runs</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart
+                    data={perLiveMinute}
+                    margin={{ top: 8, right: 16, bottom: 16, left: 0 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis
+                      dataKey="label"
+                      tick={{ fill: "hsl(var(--muted-foreground))" }}
+                      angle={-30}
+                      height={50}
+                      textAnchor="end"
+                      stroke="hsl(var(--border))"
+                    />
+                    <YAxis
+                      allowDecimals={false}
+                      tick={{ fill: "hsl(var(--muted-foreground))" }}
+                      stroke="hsl(var(--border))"
+                    />
+                    <ReTooltip content={<CustomTooltip />} />
+                    <Bar dataKey="count" fill="hsl(var(--brand))" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Gauge className="w-5 h-5" />
+                  Percentage Distribution
+                </CardTitle>
+                <CardDescription>Distribution of match percentages</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart
+                    data={percentageDistribution}
+                    margin={{ top: 8, right: 16, bottom: 16, left: 0 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis
+                      dataKey="range"
+                      tick={{ fill: "hsl(var(--muted-foreground))" }}
+                      stroke="hsl(var(--border))"
+                    />
+                    <YAxis
+                      allowDecimals={false}
+                      tick={{ fill: "hsl(var(--muted-foreground))" }}
+                      stroke="hsl(var(--border))"
+                    />
+                    <ReTooltip content={<CustomTooltip />} />
+                    <Bar dataKey="count" fill="hsl(var(--brand))" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <ClockIcon className="w-5 h-5" />
+                  Hourly Distribution
+                </CardTitle>
+                <CardDescription>Detections by hour of day</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <ComposedChart
+                    data={hourlyDistribution}
+                    margin={{ top: 8, right: 16, bottom: 16, left: 0 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis
+                      dataKey="hour"
+                      tick={{ fill: "hsl(var(--muted-foreground))" }}
+                      stroke="hsl(var(--border))"
+                    />
+                    <YAxis
+                      allowDecimals={false}
+                      tick={{ fill: "hsl(var(--muted-foreground))" }}
+                      stroke="hsl(var(--border))"
+                    />
+                    <ReTooltip content={<CustomTooltip />} />
+                    <Bar dataKey="count" fill="hsl(var(--brand))" radius={[4, 4, 0, 0]} />
+                    <Line
+                      type="monotone"
+                      dataKey="count"
+                      stroke="hsl(var(--primary))"
+                      strokeWidth={2}
+                      dot={false}
+                    />
+                  </ComposedChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Zap className="w-5 h-5" />
+                  Detection Rate Over Time
+                </CardTitle>
+                <CardDescription>Detections per minute over time</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <AreaChart
+                    data={detectionRate}
+                    margin={{ top: 8, right: 16, bottom: 16, left: 0 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis
+                      dataKey="time"
+                      tick={{ fill: "hsl(var(--muted-foreground))" }}
+                      stroke="hsl(var(--border))"
+                    />
+                    <YAxis
+                      tick={{ fill: "hsl(var(--muted-foreground))" }}
+                      stroke="hsl(var(--border))"
+                    />
+                    <ReTooltip content={<CustomTooltip />} />
+                    <Area
+                      type="monotone"
+                      dataKey="rate"
+                      stroke="hsl(var(--brand))"
+                      fill="hsl(var(--brand))"
+                      fillOpacity={0.2}
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="analysis" className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Target className="w-5 h-5" />
+                  Top Markers
+                </CardTitle>
+                <CardDescription>Most frequently detected markers</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart
+                    data={markerStats}
+                    layout="vertical"
+                    margin={{ top: 8, right: 16, bottom: 16, left: 80 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis
+                      type="number"
+                      tick={{ fill: "hsl(var(--muted-foreground))" }}
+                      stroke="hsl(var(--border))"
+                    />
+                    <YAxis
+                      type="category"
+                      dataKey="name"
+                      tick={{ fill: "hsl(var(--muted-foreground))" }}
+                      stroke="hsl(var(--border))"
+                    />
+                    <ReTooltip content={<CustomTooltip />} />
+                    <Bar dataKey="count" fill="hsl(var(--brand))" radius={[0, 4, 4, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <LineChart className="w-5 h-5" />
+                  Run Statistics
+                </CardTitle>
+                <CardDescription>Top runs by detection count</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  {runStats.map((run, idx) => (
+                    <div key={idx} className="flex items-center justify-between p-2 rounded-sm bg-muted/50">
                       <div>
-                        X: {p.x}, Y: {p.y}
+                        <div className="font-medium">Run #{idx + 1}</div>
+                        <div className="text-sm text-muted-foreground">
+                          {run.count} detections • {secondsToLabel(run.duration)}
+                        </div>
                       </div>
-                      <div>LiveSplit: {secondsToLabel(p.live)}</div>
-                      <div>Match: {p.pct.toFixed(2)}%</div>
+                      <Badge variant="secondary">{run.count}</Badge>
                     </div>
-                  ) as any;
-                }}
-              />
-              <Scatter
-                name="detections"
-                data={heatmapPoints}
-                shape={(props: any) => {
-                  const { cx, cy, payload } = props;
-                  return <circle cx={cx} cy={cy} r={3} fill={payload.color} />;
-                }}
-              />
-            </ScatterChart>
-          </ResponsiveContainer>
-        </div>
-      </section>
+                  ))}
+                  {runStats.length === 0 && (
+                    <div className="text-muted-foreground text-center py-8">No run data available</div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
 
-      <section className="space-y-2">
-        <h2 className="text-xl font-semibold text-primary flex items-center gap-2">
-          <ActivityIcon className="w-5 h-5" />
-          Percentage vs LiveSplit Time
-        </h2>
-        <div className="w-full rounded-sm bg-foreground/0">
-          <ResponsiveContainer width="100%" height={300}>
-            <ReLineChart margin={{ top: 8, right: 16, bottom: 16, left: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis
-                type="number"
-                dataKey="live"
-                tickFormatter={secondsToLabel}
-                tick={{ className: "text-secondary" }}
-              />
-              <YAxis domain={[0, 100]} tick={{ className: "text-secondary" }} />
-              <ReTooltip labelFormatter={(l) => secondsToLabel(Number(l))} />
-              <ReLegend />
-              {[...byTemplate.entries()].map(([tpl, arr], i) => (
-                <Line
-                  key={tpl}
-                  type="monotone"
-                  dataKey="pct"
-                  name={tpl}
-                  data={arr}
-                  stroke={palette[i % palette.length]}
-                  dot={false}
-                />
-              ))}
-              <ReferenceLine y={100} stroke="#16a34a" strokeDasharray="4 4" />
-            </ReLineChart>
-          </ResponsiveContainer>
-        </div>
-      </section>
-
-      <section className="space-y-2">
-        <h2 className="text-xl font-semibold text-primary flex items-center gap-2">
-          <BarChart3 className="w-5 h-5" />
-          Detections per Real-Time Minute
-        </h2>
-        <div className="w-full rounded-sm bg-foreground/0">
-          <ResponsiveContainer width="100%" height={260}>
-            <BarChart
-              data={perRtMinute}
-              margin={{ top: 8, right: 16, bottom: 16, left: 0 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis
-                dataKey="minute"
-                tick={{ className: "text-secondary" }}
-                angle={-30}
-                height={50}
-                textAnchor="end"
-              />
-              <YAxis
-                allowDecimals={false}
-                tick={{ className: "text-secondary" }}
-              />
-              <ReTooltip />
-              <Bar dataKey="count" fill="#22c55e" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </section>
-
-      <section className="space-y-2">
-        <h2 className="text-xl font-semibold text-primary flex items-center gap-2">
-          <TimerIcon className="w-5 h-5" />
-          Detections per LiveSplit Minute
-        </h2>
-        <div className="w-full rounded-sm bg-foreground/0">
-          <ResponsiveContainer width="100%" height={260}>
-            <BarChart
-              data={perLiveMinute}
-              margin={{ top: 8, right: 16, bottom: 16, left: 0 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis
-                dataKey="label"
-                tick={{ className: "text-secondary" }}
-                angle={-30}
-                height={50}
-                textAnchor="end"
-              />
-              <YAxis
-                allowDecimals={false}
-                tick={{ className: "text-secondary" }}
-              />
-              <ReTooltip />
-              <Bar dataKey="count" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </section>
-
-      <section className="space-y-2">
-        <h2 className="text-xl font-semibold text-primary flex items-center gap-2">
-          <TrendingUpIcon className="w-5 h-5" />
-          Cumulative Detections over LiveSplit
-        </h2>
-        <div className="w-full rounded-sm bg-foreground/0">
-          <ResponsiveContainer width="100%" height={260}>
-            <AreaChart
-              data={cumulativeLive}
-              margin={{ top: 8, right: 16, bottom: 16, left: 0 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis
-                dataKey="live"
-                tickFormatter={secondsToLabel}
-                tick={{ className: "text-secondary" }}
-              />
-              <YAxis
-                allowDecimals={false}
-                tick={{ className: "text-secondary" }}
-              />
-              <ReTooltip labelFormatter={(l) => secondsToLabel(Number(l))} />
-              <Area
-                type="monotone"
-                dataKey="cum"
-                stroke="#f97316"
-                fill="#f97316"
-                fillOpacity={0.2}
-              />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
-      </section>
+        <TabsContent value="screenshots" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <ImagesIcon className="w-5 h-5" />
+                Screenshots Cache
+              </CardTitle>
+              <CardDescription>Recently captured screenshots</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                {shots.map((f) => (
+                  <a
+                    key={f.name}
+                    href={`/api/screenshots/${encodeURIComponent(f.name)}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="group rounded-sm border bg-card focus:outline-none focus:ring-2 focus:ring-ring hover:bg-accent transition-colors"
+                  >
+                    <div className="aspect-video w-full overflow-hidden rounded-t-sm bg-muted">
+                      <img
+                        src={`/api/screenshots/${encodeURIComponent(f.name)}`}
+                        alt={f.name}
+                        className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform"
+                        loading="lazy"
+                      />
+                    </div>
+                    <div className="px-2 py-1.5 text-xs truncate text-muted-foreground">
+                      {f.name}
+                    </div>
+                  </a>
+                ))}
+                {!shots.length && (
+                  <div className="col-span-full text-center text-muted-foreground py-8">
+                    No screenshots found.
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </main>
   );
 }
