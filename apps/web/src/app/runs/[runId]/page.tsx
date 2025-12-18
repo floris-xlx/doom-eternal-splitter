@@ -1,12 +1,27 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Clock, ImageIcon, Target, TrendingUp } from "lucide-react";
+import { ArrowLeft, Clock, ImageIcon, Target, TrendingUp, BarChart3, Zap } from "lucide-react";
 import { formatDuration, formatTimeElapsed, formatNumber } from "@/lib/utils";
 import { ImageLightbox } from "@/components/ImageLightbox";
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip as ReTooltip,
+  Cell,
+  LineChart,
+  Line,
+  ReferenceLine,
+  ComposedChart,
+  Area,
+} from "recharts";
 
 type Match = {
   template: string;
@@ -31,12 +46,33 @@ type RunData = {
   duration: number;
 };
 
+type SegmentData = {
+  segment_index: number;
+  from_marker: string;
+  to_marker: string;
+  duration: number;
+  avg_duration?: number;
+  is_faster?: boolean;
+};
+
+const palette = [
+  "#60a5fa",
+  "#f472b6",
+  "#34d399",
+  "#f59e0b",
+  "#a78bfa",
+  "#fb7185",
+  "#22d3ee",
+  "#f97316",
+];
+
 export default function RunDetailPage() {
   const params = useParams();
   const router = useRouter();
   const runId = params?.runId as string;
   
   const [runData, setRunData] = useState<RunData | null>(null);
+  const [segmentsData, setSegmentsData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -45,13 +81,16 @@ export default function RunDetailPage() {
   useEffect(() => {
     if (!runId) return;
 
-    fetch(`/api/runs/${runId}`)
-      .then((r) => {
+    Promise.all([
+      fetch(`/api/runs/${runId}`).then((r) => {
         if (!r.ok) throw new Error("Run not found");
         return r.json();
-      })
-      .then((data) => {
-        setRunData(data);
+      }),
+      fetch("/api/segments").then((r) => r.json()),
+    ])
+      .then(([runDataResult, segmentsResult]) => {
+        setRunData(runDataResult);
+        setSegmentsData(segmentsResult);
         setLoading(false);
       })
       .catch((err) => {
@@ -95,6 +134,50 @@ export default function RunDetailPage() {
   const avgPercentage =
     runData.matches.reduce((sum, m) => sum + m.percentage, 0) / runData.matches.length;
 
+  // Calculate segments for this run
+  const segments = useMemo<SegmentData[]>(() => {
+    if (!runData || runData.matches.length < 2) return [];
+    
+    const segs: SegmentData[] = [];
+    for (let i = 0; i < runData.matches.length - 1; i++) {
+      const from = runData.matches[i];
+      const to = runData.matches[i + 1];
+      const duration = to.time_elapsed - from.time_elapsed;
+      
+      segs.push({
+        segment_index: i,
+        from_marker: from.marker || from.template,
+        to_marker: to.marker || to.template,
+        duration,
+      });
+    }
+    
+    // Add average comparison if segments data is available
+    if (segmentsData?.segment_statistics) {
+      segs.forEach(seg => {
+        const key = `${seg.from_marker} → ${seg.to_marker}`;
+        const stat = segmentsData.segment_statistics.find((s: any) => s.segment_key === key);
+        if (stat) {
+          seg.avg_duration = stat.avg_duration;
+          seg.is_faster = seg.duration < stat.avg_duration;
+        }
+      });
+    }
+    
+    return segs;
+  }, [runData, segmentsData]);
+
+  const segmentStats = useMemo(() => {
+    if (segments.length === 0) return { avg: 0, fastest: 0, slowest: 0, total: 0 };
+    const durations = segments.map(s => s.duration);
+    return {
+      avg: durations.reduce((a, b) => a + b, 0) / durations.length,
+      fastest: Math.min(...durations),
+      slowest: Math.max(...durations),
+      total: durations.reduce((a, b) => a + b, 0),
+    };
+  }, [segments]);
+
   // Prepare lightbox images
   const lightboxImages = runData.matches.map((match, idx) => ({
     name: match.screenshot_filename || match.image || match.template,
@@ -124,7 +207,7 @@ export default function RunDetailPage() {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         <Card>
           <CardHeader className="pb-3">
             <CardDescription>Total Detections</CardDescription>
@@ -133,7 +216,7 @@ export default function RunDetailPage() {
         </Card>
         <Card>
           <CardHeader className="pb-3">
-            <CardDescription>Duration</CardDescription>
+            <CardDescription>Run Duration</CardDescription>
             <CardTitle className="text-2xl">{formatDuration(runData.duration)}</CardTitle>
           </CardHeader>
         </Card>
@@ -149,7 +232,181 @@ export default function RunDetailPage() {
             <CardTitle className="text-2xl">{avgPercentage.toFixed(1)}%</CardTitle>
           </CardHeader>
         </Card>
+        <Card>
+          <CardHeader className="pb-3">
+            <CardDescription>Total Segments</CardDescription>
+            <CardTitle className="text-2xl">{segments.length}</CardTitle>
+          </CardHeader>
+        </Card>
       </div>
+
+      {/* Segment Statistics */}
+      {segments.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardDescription>Avg Segment Time</CardDescription>
+              <CardTitle className="text-xl">{formatDuration(segmentStats.avg)}</CardTitle>
+            </CardHeader>
+          </Card>
+          <Card className="bg-green-950/20 border-green-800">
+            <CardHeader className="pb-3">
+              <CardDescription className="text-green-300">Fastest Segment</CardDescription>
+              <CardTitle className="text-xl text-green-200">{formatDuration(segmentStats.fastest)}</CardTitle>
+            </CardHeader>
+          </Card>
+          <Card className="bg-yellow-950/20 border-yellow-800">
+            <CardHeader className="pb-3">
+              <CardDescription className="text-yellow-300">Slowest Segment</CardDescription>
+              <CardTitle className="text-xl text-yellow-200">{formatDuration(segmentStats.slowest)}</CardTitle>
+            </CardHeader>
+          </Card>
+          <Card>
+            <CardHeader className="pb-3">
+              <CardDescription>Segments Faster Than Avg</CardDescription>
+              <CardTitle className="text-xl">
+                {segments.filter(s => s.is_faster).length} / {segments.length}
+              </CardTitle>
+            </CardHeader>
+          </Card>
+        </div>
+      )}
+
+      {/* Segment Analysis Charts */}
+      {segments.length > 0 && (
+        <div className="grid gap-4 md:grid-cols-2">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BarChart3 className="w-5 h-5" />
+                Segment Times
+              </CardTitle>
+              <CardDescription>Time taken between each detection</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart
+                  data={segments.map((seg, idx) => ({
+                    name: `${idx + 1}`,
+                    duration: seg.duration,
+                    avg: seg.avg_duration || null,
+                    label: `${seg.from_marker.substring(0, 15)}...`,
+                  }))}
+                  margin={{ top: 8, right: 16, bottom: 16, left: 16 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <XAxis
+                    dataKey="name"
+                    tick={{ fill: "hsl(var(--muted-foreground))" }}
+                    stroke="hsl(var(--border))"
+                    label={{ value: 'Segment #', position: 'insideBottom', offset: -5, fill: 'hsl(var(--muted-foreground))' }}
+                  />
+                  <YAxis
+                    tick={{ fill: "hsl(var(--muted-foreground))" }}
+                    stroke="hsl(var(--border))"
+                    label={{ value: 'Time (s)', angle: -90, position: 'insideLeft', fill: 'hsl(var(--muted-foreground))' }}
+                  />
+                  <ReTooltip
+                    content={({ active, payload }) => {
+                      if (!active || !payload?.length) return null;
+                      const data = payload[0].payload;
+                      return (
+                        <div className="rounded-lg border bg-card p-3 text-sm shadow-lg">
+                          <div className="font-medium mb-1">Segment {data.name}</div>
+                          <div className="text-xs mb-1 text-muted-foreground">{data.label}</div>
+                          <div className="space-y-1">
+                            <div>Duration: {formatDuration(data.duration)}</div>
+                            {data.avg && (
+                              <div className="text-muted-foreground">
+                                Avg: {formatDuration(data.avg)}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    }}
+                  />
+                  <Bar dataKey="duration" radius={[4, 4, 0, 0]}>
+                    {segments.map((seg, idx) => (
+                      <Cell
+                        key={`cell-${idx}`}
+                        fill={seg.is_faster ? "#22c55e" : seg.avg_duration ? "#ef4444" : palette[idx % palette.length]}
+                      />
+                    ))}
+                  </Bar>
+                  {segments.some(s => s.avg_duration) && (
+                    <Line
+                      type="monotone"
+                      dataKey="avg"
+                      stroke="#94a3b8"
+                      strokeWidth={2}
+                      strokeDasharray="5 5"
+                      dot={false}
+                      name="Average"
+                    />
+                  )}
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Clock className="w-5 h-5" />
+                Cumulative Progress
+              </CardTitle>
+              <CardDescription>Total time at each detection</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={300}>
+                <ComposedChart
+                  data={runData.matches.map((match, idx) => ({
+                    index: idx + 1,
+                    time: match.time_elapsed,
+                    marker: (match.marker || match.template).substring(0, 20),
+                  }))}
+                  margin={{ top: 8, right: 16, bottom: 16, left: 16 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <XAxis
+                    dataKey="index"
+                    tick={{ fill: "hsl(var(--muted-foreground))" }}
+                    stroke="hsl(var(--border))"
+                    label={{ value: 'Detection #', position: 'insideBottom', offset: -5, fill: 'hsl(var(--muted-foreground))' }}
+                  />
+                  <YAxis
+                    tick={{ fill: "hsl(var(--muted-foreground))" }}
+                    stroke="hsl(var(--border))"
+                    label={{ value: 'Time (s)', angle: -90, position: 'insideLeft', fill: 'hsl(var(--muted-foreground))' }}
+                  />
+                  <ReTooltip
+                    content={({ active, payload }) => {
+                      if (!active || !payload?.length) return null;
+                      const data = payload[0].payload;
+                      return (
+                        <div className="rounded-lg border bg-card p-3 text-sm shadow-lg">
+                          <div className="font-medium mb-1">Detection {data.index}</div>
+                          <div className="text-xs mb-1 text-muted-foreground">{data.marker}</div>
+                          <div>Time: {formatDuration(data.time)}</div>
+                        </div>
+                      );
+                    }}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="time"
+                    fill="#3b82f6"
+                    fillOpacity={0.2}
+                    stroke="#3b82f6"
+                    strokeWidth={2}
+                  />
+                </ComposedChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       {/* Screenshots Timeline */}
       <Card>

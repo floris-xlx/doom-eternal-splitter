@@ -2,47 +2,53 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  Map as MapIcon,
-  BarChart3,
-  Timer as TimerIcon,
   Activity as ActivityIcon,
-  TrendingUp as TrendingUpIcon,
-  Link2 as LinkIcon,
+  BarChart3,
   Clock3 as ClockIcon,
-  Images as ImagesIcon,
-  Zap,
-  Target,
-  Gauge,
-  PieChart,
-  LineChart,
   FileText,
+  Gauge,
+  Images as ImagesIcon,
+  LineChart,
+  Link2 as LinkIcon,
+  Map as MapIcon,
+  PieChart,
   PlayCircle,
+  Target,
+  Timer as TimerIcon,
+  TrendingUp as TrendingUpIcon,
+  Zap,
 } from "lucide-react";
 import {
-  ResponsiveContainer,
-  ScatterChart,
-  Scatter,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip as ReTooltip,
-  Legend as ReLegend,
-  LineChart as ReLineChart,
-  Line,
-  BarChart,
-  Bar,
-  AreaChart,
   Area,
-  ReferenceLine,
-  PieChart as RePieChart,
-  Pie,
+  AreaChart,
+  Bar,
+  BarChart,
+  CartesianGrid,
   Cell,
   ComposedChart,
+  Legend as ReLegend,
+  Line,
+  LineChart as ReLineChart,
+  Pie,
+  PieChart as RePieChart,
+  ReferenceLine,
+  ResponsiveContainer,
+  Scatter,
+  ScatterChart,
+  Tooltip as ReTooltip,
+  XAxis,
+  YAxis,
 } from "recharts";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { formatNumber, formatDuration } from "@/lib/utils";
+import { formatDuration, formatNumber } from "@/lib/utils";
 import { ImageLightbox } from "@/components/ImageLightbox";
 
 type Match = {
@@ -93,7 +99,7 @@ function secondsToLabel(s: number): string {
 function lerpColor(
   a: [number, number, number],
   b: [number, number, number],
-  t: number
+  t: number,
 ): string {
   const r = Math.round(a[0] + (b[0] - a[0]) * t);
   const g = Math.round(a[1] + (b[1] - a[1]) * t);
@@ -105,12 +111,27 @@ const CustomTooltip = ({ active, payload, labelFormatter }: any) => {
   if (!active || !payload?.length) return null;
   return (
     <div className="rounded-sm border bg-card p-3 text-sm shadow-none">
-      {labelFormatter && <div className="mb-2 font-medium">{labelFormatter(payload[0].payload)}</div>}
+      {labelFormatter && (
+        <div className="mb-2 font-medium">
+          {labelFormatter(payload[0].payload)}
+        </div>
+      )}
       {payload.map((entry: any, idx: number) => (
-        <div key={idx} className="flex items-center gap-2" style={{ color: entry.color }}>
-          <div className="h-2 w-2 rounded-full" style={{ backgroundColor: entry.color }} />
+        <div
+          key={idx}
+          className="flex items-center gap-2"
+          style={{ color: entry.color }}
+        >
+          <div
+            className="h-2 w-2 rounded-full"
+            style={{ backgroundColor: entry.color }}
+          />
           <span>{entry.name}:</span>
-          <span className="font-medium">{typeof entry.value === 'number' ? entry.value.toFixed(2) : entry.value}</span>
+          <span className="font-medium">
+            {typeof entry.value === "number"
+              ? entry.value.toFixed(2)
+              : entry.value}
+          </span>
         </div>
       ))}
     </div>
@@ -127,11 +148,47 @@ type Run = {
   preview_screenshot?: string;
 };
 
+type Segment = {
+  segment_index: number;
+  from_marker: string;
+  to_marker: string;
+  duration: number;
+  from_time: number;
+  to_time: number;
+};
+
+type RunSegments = {
+  run_id: number;
+  segments: Segment[];
+  total_duration: number;
+  detection_count: number;
+};
+
+type SegmentStat = {
+  segment_key: string;
+  count: number;
+  avg_duration: number;
+  min_duration: number;
+  max_duration: number;
+  durations: Array<{ run_id: number; duration: number }>;
+};
+
+type SegmentsData = {
+  runs: RunSegments[];
+  segment_statistics: SegmentStat[];
+};
+
 export default function HomePage() {
   const router = useRouter();
   const [data, setData] = useState<Match[]>([]);
-  const [shots, setShots] = useState<{ name: string; size: number; mtime: number }[]>([]);
+  const [shots, setShots] = useState<
+    { name: string; size: number; mtime: number }[]
+  >([]);
   const [runs, setRuns] = useState<Run[]>([]);
+  const [segmentsData, setSegmentsData] = useState<SegmentsData>({
+    runs: [],
+    segment_statistics: [],
+  });
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
 
@@ -156,9 +213,18 @@ export default function HomePage() {
       .catch(() => setRuns([]));
   }, []);
 
+  useEffect(() => {
+    fetch("/api/segments")
+      .then((r) => r.json())
+      .then((data) =>
+        setSegmentsData(data || { runs: [], segment_statistics: [] })
+      )
+      .catch(() => setSegmentsData({ runs: [], segment_statistics: [] }));
+  }, []);
+
   const templates = useMemo(
     () => Array.from(new Set(data.map((d) => d.template))),
-    [data]
+    [data],
   );
 
   const enriched = useMemo(() => {
@@ -210,10 +276,12 @@ export default function HomePage() {
   const perRtMinute = useMemo(() => {
     const b: Record<string, number> = {};
     for (const d of enriched) {
-      const key = `${d.date.getHours().toString().padStart(2, "0")}:${d.date
-        .getMinutes()
-        .toString()
-        .padStart(2, "0")}`;
+      const key = `${d.date.getHours().toString().padStart(2, "0")}:${
+        d.date
+          .getMinutes()
+          .toString()
+          .padStart(2, "0")
+      }`;
       b[key] = (b[key] || 0) + 1;
     }
     return Object.entries(b)
@@ -242,7 +310,7 @@ export default function HomePage() {
       .filter((d) => typeof d.livesplitSeconds === "number")
       .sort(
         (a, b) =>
-          (a.livesplitSeconds as number) - (b.livesplitSeconds as number)
+          (a.livesplitSeconds as number) - (b.livesplitSeconds as number),
       );
     let acc = 0;
     return pts.map((d) => ({ live: d.livesplitSeconds as number, cum: ++acc }));
@@ -291,7 +359,9 @@ export default function HomePage() {
     const counts = new Map<number, number>();
     buckets.forEach((b) => counts.set(b, 0));
     for (const d of enriched) {
-      const bucket = buckets.find((b, i) => d.percentage < buckets[i + 1] || i === buckets.length - 1) || 0;
+      const bucket = buckets.find((b, i) =>
+        d.percentage < buckets[i + 1] || i === buckets.length - 1
+      ) || 0;
       counts.set(bucket, (counts.get(bucket) || 0) + 1);
     }
     return Array.from(counts.entries())
@@ -316,11 +386,15 @@ export default function HomePage() {
   }, [enriched]);
 
   const runStats = useMemo(() => {
-    const runsMap = new Map<number, { id: number; count: number; start: number; end: number }>();
+    const runsMap = new Map<
+      number,
+      { id: number; count: number; start: number; end: number }
+    >();
     for (const d of enriched) {
       if (typeof d.livesplitSeconds !== "number") continue;
       const id = d.runId ?? -1;
-      const existing = runsMap.get(id) || { id, count: 0, start: Infinity, end: -Infinity };
+      const existing = runsMap.get(id) ||
+        { id, count: 0, start: Infinity, end: -Infinity };
       existing.count++;
       existing.start = Math.min(existing.start, d.livesplitSeconds);
       existing.end = Math.max(existing.end, d.livesplitSeconds);
@@ -351,13 +425,17 @@ export default function HomePage() {
 
   const detectionRate = useMemo(() => {
     if (!enriched.length) return [];
-    const sorted = [...enriched].sort((a, b) => a.date.getTime() - b.date.getTime());
+    const sorted = [...enriched].sort((a, b) =>
+      a.date.getTime() - b.date.getTime()
+    );
     const windowSize = Math.max(1, Math.floor(sorted.length / 50));
     const result: { time: string; rate: number }[] = [];
     for (let i = 0; i < sorted.length; i += windowSize) {
       const window = sorted.slice(i, Math.min(i + windowSize, sorted.length));
       if (window.length < 2) continue;
-      const duration = (window[window.length - 1].date.getTime() - window[0].date.getTime()) / 1000;
+      const duration =
+        (window[window.length - 1].date.getTime() - window[0].date.getTime()) /
+        1000;
       const rate = duration > 0 ? window.length / duration : 0;
       result.push({
         time: window[0].date.toLocaleTimeString(),
@@ -390,21 +468,48 @@ export default function HomePage() {
   }, []);
 
   const stats = useMemo(() => {
-    const withLive = enriched.filter((d) => typeof d.livesplitSeconds === "number");
+    const withLive = enriched.filter((d) =>
+      typeof d.livesplitSeconds === "number"
+    );
+    const runDurations = runs.map((r) => r.duration).filter((d) => d > 0);
+    const avgRunDuration = runDurations.length > 0
+      ? runDurations.reduce((a, b) => a + b, 0) / runDurations.length
+      : 0;
+    const fastestRun = runs.length > 0
+      ? runs.reduce(
+        (min, r) => r.duration > 0 && r.duration < min.duration ? r : min,
+        runs[0],
+      )
+      : null;
+    const slowestRun = runs.length > 0
+      ? runs.reduce((max, r) => r.duration > max.duration ? r : max, runs[0])
+      : null;
+
     return {
       total: enriched.length,
       withLiveSplit: withLive.length,
       templates: templates.length,
-      runs: new Set(enriched.map((d) => d.runId).filter((id): id is number => id !== null)).size,
-      avgPercentage: enriched.reduce((sum, d) => sum + d.percentage, 0) / enriched.length || 0,
+      runs: new Set(
+        enriched.map((d) => d.runId).filter((id): id is number =>
+          id !== null
+        ),
+      ).size,
+      avgPercentage: enriched.reduce((sum, d) =>
+            sum + d.percentage, 0) / enriched.length || 0,
+      avgRunDuration,
+      fastestRun,
+      slowestRun,
+      totalRuns: runs.length,
     };
-  }, [enriched, templates]);
+  }, [enriched, templates, runs]);
 
   return (
     <main className="p-6 space-y-6">
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold text-primary">Speedrun Analytics</h1>
+          <h1 className="text-3xl font-bold text-primary">
+            Speedrun Analytics
+          </h1>
           <div className="flex items-center gap-3">
             <button
               onClick={() => router.push("/logs")}
@@ -413,10 +518,12 @@ export default function HomePage() {
               <FileText className="w-4 h-4" />
               Logs
             </button>
-            <Badge 
-              variant={liveConnected ? "default" : "secondary"} 
+            <Badge
+              variant={liveConnected ? "default" : "secondary"}
               className={`gap-2 px-3 py-1.5 rounded-full transition-all ${
-                liveConnected ? "bg-green-600 hover:bg-green-700 animate-pulse" : ""
+                liveConnected
+                  ? "bg-green-600 hover:bg-green-700 animate-pulse"
+                  : ""
               }`}
             >
               <LinkIcon className="w-3 h-3" />
@@ -429,23 +536,37 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           <Card className="rounded-xl">
             <CardHeader className="pb-3">
               <CardDescription>Total Detections</CardDescription>
-              <CardTitle className="text-2xl">{formatNumber(stats.total)}</CardTitle>
+              <CardTitle className="text-2xl">
+                {formatNumber(stats.total)}
+              </CardTitle>
             </CardHeader>
           </Card>
           <Card className="rounded-xl">
             <CardHeader className="pb-3">
               <CardDescription>With LiveSplit</CardDescription>
-              <CardTitle className="text-2xl">{formatNumber(stats.withLiveSplit)}</CardTitle>
+              <CardTitle className="text-2xl">
+                {formatNumber(stats.withLiveSplit)}
+              </CardTitle>
             </CardHeader>
           </Card>
           <Card className="rounded-xl">
             <CardHeader className="pb-3">
               <CardDescription>Templates</CardDescription>
-              <CardTitle className="text-2xl">{formatNumber(stats.templates)}</CardTitle>
+              <CardTitle className="text-2xl">
+                {formatNumber(stats.templates)}
+              </CardTitle>
+            </CardHeader>
+          </Card>
+          <Card className="rounded-xl">
+            <CardHeader className="pb-3">
+              <CardDescription>Total Runs</CardDescription>
+              <CardTitle className="text-2xl">
+                {formatNumber(stats.totalRuns)}
+              </CardTitle>
             </CardHeader>
           </Card>
           <Card className="rounded-xl">
@@ -457,15 +578,80 @@ export default function HomePage() {
             </CardHeader>
           </Card>
         </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card className="rounded-xl">
+            <CardHeader className="pb-3 flex flex-row items-center justify-between">
+              <div>
+                <CardDescription>Average Run Duration</CardDescription>
+                <CardTitle className="text-2xl">
+                  {formatDuration(stats.avgRunDuration)}
+                </CardTitle>
+              </div>
+              <ClockIcon className="w-8 h-8 text-muted-foreground" />
+            </CardHeader>
+          </Card>
+          <Card className="rounded-xl bg-green-950/20 border-green-800">
+            <CardHeader className="pb-3 flex flex-row items-center justify-between">
+              <div>
+                <CardDescription className="text-green-300">
+                  Fastest Run
+                </CardDescription>
+                <CardTitle className="text-2xl text-green-200">
+                  {stats.fastestRun
+                    ? formatDuration(stats.fastestRun.duration)
+                    : "N/A"}
+                </CardTitle>
+                {stats.fastestRun && (
+                  <p className="text-xs text-green-400 mt-1">
+                    Run #{stats.fastestRun.run_id}
+                  </p>
+                )}
+              </div>
+              <Zap className="w-8 h-8 text-green-400" />
+            </CardHeader>
+          </Card>
+          <Card className="rounded-xl bg-yellow-950/20 border-yellow-800">
+            <CardHeader className="pb-3 flex flex-row items-center justify-between">
+              <div>
+                <CardDescription className="text-yellow-300">
+                  Slowest Run
+                </CardDescription>
+                <CardTitle className="text-2xl text-yellow-200">
+                  {stats.slowestRun
+                    ? formatDuration(stats.slowestRun.duration)
+                    : "N/A"}
+                </CardTitle>
+                {stats.slowestRun && (
+                  <p className="text-xs text-yellow-400 mt-1">
+                    Run #{stats.slowestRun.run_id}
+                  </p>
+                )}
+              </div>
+              <TimerIcon className="w-8 h-8 text-yellow-400" />
+            </CardHeader>
+          </Card>
+        </div>
       </div>
 
       <Tabs defaultValue="overview" className="space-y-4">
         <TabsList className="rounded-xl">
-          <TabsTrigger value="overview" className="rounded-lg">Overview</TabsTrigger>
-          <TabsTrigger value="charts" className="rounded-lg">Charts</TabsTrigger>
-          <TabsTrigger value="analysis" className="rounded-lg">Analysis</TabsTrigger>
+          <TabsTrigger value="overview" className="rounded-lg">
+            Overview
+          </TabsTrigger>
+          <TabsTrigger value="charts" className="rounded-lg">
+            Charts
+          </TabsTrigger>
+          <TabsTrigger value="segments" className="rounded-lg">
+            Segments
+          </TabsTrigger>
+          <TabsTrigger value="analysis" className="rounded-lg">
+            Analysis
+          </TabsTrigger>
           <TabsTrigger value="runs" className="rounded-lg">Runs</TabsTrigger>
-          <TabsTrigger value="screenshots" className="rounded-lg">Screenshots</TabsTrigger>
+          <TabsTrigger value="screenshots" className="rounded-lg">
+            Screenshots
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4">
@@ -476,12 +662,19 @@ export default function HomePage() {
                   <MapIcon className="w-5 h-5" />
                   Coordinate Heatmap
                 </CardTitle>
-                <CardDescription>Detections colored by LiveSplit time</CardDescription>
+                <CardDescription>
+                  Detections colored by LiveSplit time
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
-                  <ScatterChart margin={{ top: 8, right: 16, bottom: 16, left: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <ScatterChart
+                    margin={{ top: 8, right: 16, bottom: 16, left: 0 }}
+                  >
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke="hsl(var(--border))"
+                    />
                     <XAxis
                       type="number"
                       dataKey="x"
@@ -501,7 +694,9 @@ export default function HomePage() {
                         const p = payload[0].payload as any;
                         return (
                           <div className="rounded-sm border bg-card p-3 text-sm shadow-none">
-                            <div className="font-medium">X: {p.x}, Y: {p.y}</div>
+                            <div className="font-medium">
+                              X: {p.x}, Y: {p.y}
+                            </div>
                             <div>LiveSplit: {secondsToLabel(p.live)}</div>
                             <div>Match: {p.pct.toFixed(2)}%</div>
                           </div>
@@ -513,7 +708,9 @@ export default function HomePage() {
                       data={heatmapPoints}
                       shape={(props: any) => {
                         const { cx, cy, payload } = props;
-                        return <circle cx={cx} cy={cy} r={3} fill={payload.color} />;
+                        return (
+                          <circle cx={cx} cy={cy} r={3} fill={payload.color} />
+                        );
                       }}
                     />
                   </ScatterChart>
@@ -538,13 +735,17 @@ export default function HomePage() {
                       cx="50%"
                       cy="50%"
                       labelLine={false}
-                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                      label={({ name, percent }) =>
+                        `${name}: ${(percent * 100).toFixed(0)}%`}
                       outerRadius={80}
                       fill="#8884d8"
                       dataKey="value"
                     >
                       {templateDistribution.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={palette[index % palette.length]} />
+                        <Cell
+                          key={`cell-${index}`}
+                          fill={palette[index % palette.length]}
+                        />
                       ))}
                     </Pie>
                   </RePieChart>
@@ -562,12 +763,19 @@ export default function HomePage() {
                   <ActivityIcon className="w-5 h-5" />
                   Percentage vs LiveSplit Time
                 </CardTitle>
-                <CardDescription>Match percentage over run time</CardDescription>
+                <CardDescription>
+                  Match percentage over run time
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
-                  <ReLineChart margin={{ top: 8, right: 16, bottom: 16, left: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <ReLineChart
+                    margin={{ top: 8, right: 16, bottom: 16, left: 0 }}
+                  >
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke="hsl(var(--border))"
+                    />
                     <XAxis
                       type="number"
                       dataKey="live"
@@ -582,7 +790,11 @@ export default function HomePage() {
                     />
                     <ReTooltip
                       labelFormatter={(l) => secondsToLabel(Number(l))}
-                      content={<CustomTooltip labelFormatter={(p: any) => secondsToLabel(p.live)} />}
+                      content={
+                        <CustomTooltip
+                          labelFormatter={(p: any) => secondsToLabel(p.live)}
+                        />
+                      }
                     />
                     <ReLegend />
                     {[...byTemplate.entries()].map(([tpl, arr], i) => (
@@ -597,7 +809,11 @@ export default function HomePage() {
                         strokeWidth={2}
                       />
                     ))}
-                    <ReferenceLine y={100} stroke="hsl(var(--brand))" strokeDasharray="4 4" />
+                    <ReferenceLine
+                      y={100}
+                      stroke="hsl(var(--brand))"
+                      strokeDasharray="4 4"
+                    />
                   </ReLineChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -609,7 +825,9 @@ export default function HomePage() {
                   <TrendingUpIcon className="w-5 h-5" />
                   Cumulative Detections
                 </CardTitle>
-                <CardDescription>Total detections over LiveSplit time</CardDescription>
+                <CardDescription>
+                  Total detections over LiveSplit time
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
@@ -617,7 +835,10 @@ export default function HomePage() {
                     data={cumulativeLive}
                     margin={{ top: 8, right: 16, bottom: 16, left: 0 }}
                   >
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke="hsl(var(--border))"
+                    />
                     <XAxis
                       dataKey="live"
                       tickFormatter={secondsToLabel}
@@ -631,7 +852,11 @@ export default function HomePage() {
                     />
                     <ReTooltip
                       labelFormatter={(l) => secondsToLabel(Number(l))}
-                      content={<CustomTooltip labelFormatter={(p: any) => secondsToLabel(p.live)} />}
+                      content={
+                        <CustomTooltip
+                          labelFormatter={(p: any) => secondsToLabel(p.live)}
+                        />
+                      }
                     />
                     <Area
                       type="monotone"
@@ -651,7 +876,9 @@ export default function HomePage() {
                   <BarChart3 className="w-5 h-5" />
                   Detections per Real-Time Minute
                 </CardTitle>
-                <CardDescription>Detection frequency by time of day</CardDescription>
+                <CardDescription>
+                  Detection frequency by time of day
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
@@ -659,7 +886,10 @@ export default function HomePage() {
                     data={perRtMinute}
                     margin={{ top: 8, right: 16, bottom: 16, left: 0 }}
                   >
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke="hsl(var(--border))"
+                    />
                     <XAxis
                       dataKey="minute"
                       tick={{ fill: "hsl(var(--muted-foreground))" }}
@@ -674,7 +904,11 @@ export default function HomePage() {
                       stroke="hsl(var(--border))"
                     />
                     <ReTooltip content={<CustomTooltip />} />
-                    <Bar dataKey="count" fill="hsl(var(--brand))" radius={[4, 4, 0, 0]} />
+                    <Bar
+                      dataKey="count"
+                      fill="hsl(var(--brand))"
+                      radius={[4, 4, 0, 0]}
+                    />
                   </BarChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -686,7 +920,9 @@ export default function HomePage() {
                   <TimerIcon className="w-5 h-5" />
                   Detections per LiveSplit Minute
                 </CardTitle>
-                <CardDescription>Detection frequency during runs</CardDescription>
+                <CardDescription>
+                  Detection frequency during runs
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
@@ -694,7 +930,10 @@ export default function HomePage() {
                     data={perLiveMinute}
                     margin={{ top: 8, right: 16, bottom: 16, left: 0 }}
                   >
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke="hsl(var(--border))"
+                    />
                     <XAxis
                       dataKey="label"
                       tick={{ fill: "hsl(var(--muted-foreground))" }}
@@ -709,7 +948,11 @@ export default function HomePage() {
                       stroke="hsl(var(--border))"
                     />
                     <ReTooltip content={<CustomTooltip />} />
-                    <Bar dataKey="count" fill="hsl(var(--brand))" radius={[4, 4, 0, 0]} />
+                    <Bar
+                      dataKey="count"
+                      fill="hsl(var(--brand))"
+                      radius={[4, 4, 0, 0]}
+                    />
                   </BarChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -721,7 +964,9 @@ export default function HomePage() {
                   <Gauge className="w-5 h-5" />
                   Percentage Distribution
                 </CardTitle>
-                <CardDescription>Distribution of match percentages</CardDescription>
+                <CardDescription>
+                  Distribution of match percentages
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
@@ -729,7 +974,10 @@ export default function HomePage() {
                     data={percentageDistribution}
                     margin={{ top: 8, right: 16, bottom: 16, left: 0 }}
                   >
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke="hsl(var(--border))"
+                    />
                     <XAxis
                       dataKey="range"
                       tick={{ fill: "hsl(var(--muted-foreground))" }}
@@ -741,7 +989,11 @@ export default function HomePage() {
                       stroke="hsl(var(--border))"
                     />
                     <ReTooltip content={<CustomTooltip />} />
-                    <Bar dataKey="count" fill="hsl(var(--brand))" radius={[4, 4, 0, 0]} />
+                    <Bar
+                      dataKey="count"
+                      fill="hsl(var(--brand))"
+                      radius={[4, 4, 0, 0]}
+                    />
                   </BarChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -761,7 +1013,10 @@ export default function HomePage() {
                     data={hourlyDistribution}
                     margin={{ top: 8, right: 16, bottom: 16, left: 0 }}
                   >
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke="hsl(var(--border))"
+                    />
                     <XAxis
                       dataKey="hour"
                       tick={{ fill: "hsl(var(--muted-foreground))" }}
@@ -773,7 +1028,11 @@ export default function HomePage() {
                       stroke="hsl(var(--border))"
                     />
                     <ReTooltip content={<CustomTooltip />} />
-                    <Bar dataKey="count" fill="hsl(var(--brand))" radius={[4, 4, 0, 0]} />
+                    <Bar
+                      dataKey="count"
+                      fill="hsl(var(--brand))"
+                      radius={[4, 4, 0, 0]}
+                    />
                     <Line
                       type="monotone"
                       dataKey="count"
@@ -792,7 +1051,9 @@ export default function HomePage() {
                   <Zap className="w-5 h-5" />
                   Detection Rate Over Time
                 </CardTitle>
-                <CardDescription>Detections per minute over time</CardDescription>
+                <CardDescription>
+                  Detections per minute over time
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
@@ -800,7 +1061,10 @@ export default function HomePage() {
                     data={detectionRate}
                     margin={{ top: 8, right: 16, bottom: 16, left: 0 }}
                   >
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke="hsl(var(--border))"
+                    />
                     <XAxis
                       dataKey="time"
                       tick={{ fill: "hsl(var(--muted-foreground))" }}
@@ -825,6 +1089,306 @@ export default function HomePage() {
           </div>
         </TabsContent>
 
+        <TabsContent value="segments" className="space-y-4">
+          <div className="grid gap-4">
+            {/* Segment Statistics KPIs */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <Card className="rounded-xl">
+                <CardHeader className="pb-3">
+                  <CardDescription>Total Segments</CardDescription>
+                  <CardTitle className="text-2xl">
+                    {formatNumber(segmentsData.segment_statistics.length)}
+                  </CardTitle>
+                </CardHeader>
+              </Card>
+              <Card className="rounded-xl">
+                <CardHeader className="pb-3">
+                  <CardDescription>Unique Transitions</CardDescription>
+                  <CardTitle className="text-2xl">
+                    {formatNumber(
+                      segmentsData.segment_statistics.filter((s) => s.count > 0)
+                        .length,
+                    )}
+                  </CardTitle>
+                </CardHeader>
+              </Card>
+              <Card className="rounded-xl">
+                <CardHeader className="pb-3">
+                  <CardDescription>Avg Segment Time</CardDescription>
+                  <CardTitle className="text-2xl">
+                    {segmentsData.segment_statistics.length > 0
+                      ? formatDuration(
+                        segmentsData.segment_statistics.reduce(
+                          (sum, s) => sum + s.avg_duration,
+                          0,
+                        ) /
+                          segmentsData.segment_statistics.length,
+                      )
+                      : "N/A"}
+                  </CardTitle>
+                </CardHeader>
+              </Card>
+              <Card className="rounded-xl">
+                <CardHeader className="pb-3">
+                  <CardDescription>Most Common Segment</CardDescription>
+                  <CardTitle className="text-sm">
+                    {segmentsData.segment_statistics.length > 0
+                      ? segmentsData.segment_statistics[0].segment_key.length >
+                          30
+                        ? segmentsData.segment_statistics[0].segment_key
+                          .substring(0, 30) + "..."
+                        : segmentsData.segment_statistics[0].segment_key
+                      : "N/A"}
+                  </CardTitle>
+                </CardHeader>
+              </Card>
+            </div>
+
+            {/* Segment Time Comparison Across Runs */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <BarChart3 className="w-5 h-5" />
+                  Segment Time Comparison Across Runs
+                </CardTitle>
+                <CardDescription>
+                  Compare segment durations between different runs
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={400}>
+                  <BarChart
+                    data={segmentsData.segment_statistics.slice(0, 10).map(
+                      (stat) => ({
+                        name: stat.segment_key.length > 25
+                          ? stat.segment_key.substring(0, 25) + "..."
+                          : stat.segment_key,
+                        avg: stat.avg_duration,
+                        min: stat.min_duration,
+                        max: stat.max_duration,
+                        count: stat.count,
+                      })
+                    )}
+                    margin={{ top: 8, right: 16, bottom: 60, left: 16 }}
+                  >
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke="hsl(var(--border))"
+                    />
+                    <XAxis
+                      dataKey="name"
+                      tick={{
+                        fill: "hsl(var(--muted-foreground))",
+                        fontSize: 10,
+                      }}
+                      stroke="hsl(var(--border))"
+                      angle={-45}
+                      textAnchor="end"
+                      height={80}
+                    />
+                    <YAxis
+                      tick={{ fill: "hsl(var(--muted-foreground))" }}
+                      stroke="hsl(var(--border))"
+                      label={{
+                        value: "Time (seconds)",
+                        angle: -90,
+                        position: "insideLeft",
+                        fill: "hsl(var(--muted-foreground))",
+                      }}
+                    />
+                    <ReTooltip
+                      content={({ active, payload }) => {
+                        if (!active || !payload?.length) return null;
+                        const data = payload[0].payload;
+                        return (
+                          <div className="rounded-lg border bg-card p-3 text-sm shadow-lg">
+                            <div className="font-medium mb-2">{data.name}</div>
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-2 text-green-400">
+                                <div className="w-2 h-2 rounded-full bg-green-400" />
+                                <span>Min: {formatDuration(data.min)}</span>
+                              </div>
+                              <div className="flex items-center gap-2 text-blue-400">
+                                <div className="w-2 h-2 rounded-full bg-blue-400" />
+                                <span>Avg: {formatDuration(data.avg)}</span>
+                              </div>
+                              <div className="flex items-center gap-2 text-red-400">
+                                <div className="w-2 h-2 rounded-full bg-red-400" />
+                                <span>Max: {formatDuration(data.max)}</span>
+                              </div>
+                              <div className="text-muted-foreground mt-1">
+                                Runs: {data.count}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      }}
+                    />
+                    <Bar
+                      dataKey="min"
+                      fill="#22c55e"
+                      name="Min"
+                      radius={[4, 4, 0, 0]}
+                    />
+                    <Bar
+                      dataKey="avg"
+                      fill="#3b82f6"
+                      name="Avg"
+                      radius={[4, 4, 0, 0]}
+                    />
+                    <Bar
+                      dataKey="max"
+                      fill="#ef4444"
+                      name="Max"
+                      radius={[4, 4, 0, 0]}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            {/* Run Duration Comparison */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <TimerIcon className="w-5 h-5" />
+                  Run Duration Comparison
+                </CardTitle>
+                <CardDescription>Total duration of each run</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={350}>
+                  <BarChart
+                    data={segmentsData.runs.slice(0, 20).map((run) => ({
+                      run_id: `Run ${run.run_id}`,
+                      duration: run.total_duration,
+                      detections: run.detection_count,
+                    }))}
+                    margin={{ top: 8, right: 16, bottom: 16, left: 16 }}
+                  >
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke="hsl(var(--border))"
+                    />
+                    <XAxis
+                      dataKey="run_id"
+                      tick={{
+                        fill: "hsl(var(--muted-foreground))",
+                        fontSize: 11,
+                      }}
+                      stroke="hsl(var(--border))"
+                    />
+                    <YAxis
+                      tick={{ fill: "hsl(var(--muted-foreground))" }}
+                      stroke="hsl(var(--border))"
+                      label={{
+                        value: "Duration (seconds)",
+                        angle: -90,
+                        position: "insideLeft",
+                        fill: "hsl(var(--muted-foreground))",
+                      }}
+                    />
+                    <ReTooltip
+                      content={({ active, payload }) => {
+                        if (!active || !payload?.length) return null;
+                        const data = payload[0].payload;
+                        return (
+                          <div className="rounded-lg border bg-card p-3 text-sm shadow-lg">
+                            <div className="font-medium mb-2">
+                              {data.run_id}
+                            </div>
+                            <div className="space-y-1">
+                              <div>
+                                Duration: {formatDuration(data.duration)}
+                              </div>
+                              <div>Detections: {data.detections}</div>
+                            </div>
+                          </div>
+                        );
+                      }}
+                    />
+                    <Bar
+                      dataKey="duration"
+                      fill="#8b5cf6"
+                      radius={[4, 4, 0, 0]}
+                    >
+                      {segmentsData.runs.slice(0, 20).map((entry, index) => (
+                        <Cell
+                          key={`cell-${index}`}
+                          fill={palette[index % palette.length]}
+                        />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            {/* Segment Performance Table */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Target className="w-5 h-5" />
+                  Segment Performance Details
+                </CardTitle>
+                <CardDescription>
+                  Detailed statistics for each segment
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-border">
+                        <th className="text-left p-3 font-medium">Segment</th>
+                        <th className="text-right p-3 font-medium">Runs</th>
+                        <th className="text-right p-3 font-medium">Avg Time</th>
+                        <th className="text-right p-3 font-medium">
+                          Best Time
+                        </th>
+                        <th className="text-right p-3 font-medium">
+                          Worst Time
+                        </th>
+                        <th className="text-right p-3 font-medium">Variance</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {segmentsData.segment_statistics.slice(0, 15).map((
+                        stat,
+                        idx,
+                      ) => (
+                        <tr
+                          key={idx}
+                          className="border-b border-border/50 hover:bg-muted/50"
+                        >
+                          <td className="p-3 font-mono text-xs">
+                            {stat.segment_key}
+                          </td>
+                          <td className="p-3 text-right">{stat.count}</td>
+                          <td className="p-3 text-right font-medium">
+                            {formatDuration(stat.avg_duration)}
+                          </td>
+                          <td className="p-3 text-right text-green-400">
+                            {formatDuration(stat.min_duration)}
+                          </td>
+                          <td className="p-3 text-right text-red-400">
+                            {formatDuration(stat.max_duration)}
+                          </td>
+                          <td className="p-3 text-right">
+                            {formatDuration(
+                              stat.max_duration - stat.min_duration,
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
         <TabsContent value="analysis" className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
             <Card>
@@ -833,7 +1397,9 @@ export default function HomePage() {
                   <Target className="w-5 h-5" />
                   Top Markers
                 </CardTitle>
-                <CardDescription>Most frequently detected markers</CardDescription>
+                <CardDescription>
+                  Most frequently detected markers
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
@@ -842,7 +1408,10 @@ export default function HomePage() {
                     layout="vertical"
                     margin={{ top: 8, right: 16, bottom: 16, left: 80 }}
                   >
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke="hsl(var(--border))"
+                    />
                     <XAxis
                       type="number"
                       tick={{ fill: "hsl(var(--muted-foreground))" }}
@@ -855,7 +1424,11 @@ export default function HomePage() {
                       stroke="hsl(var(--border))"
                     />
                     <ReTooltip content={<CustomTooltip />} />
-                    <Bar dataKey="count" fill="hsl(var(--brand))" radius={[0, 4, 4, 0]} />
+                    <Bar
+                      dataKey="count"
+                      fill="hsl(var(--brand))"
+                      radius={[0, 4, 4, 0]}
+                    />
                   </BarChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -872,22 +1445,27 @@ export default function HomePage() {
               <CardContent>
                 <div className="space-y-2">
                   {runStats.map((run, idx) => (
-                    <div 
-                      key={idx} 
+                    <div
+                      key={idx}
                       onClick={() => router.push(`/runs/${run.id}`)}
                       className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-accent cursor-pointer transition-colors"
                     >
                       <div>
                         <div className="font-medium">Run #{run.id}</div>
                         <div className="text-sm text-muted-foreground">
-                          {formatNumber(run.count)} detections • {secondsToLabel(run.duration)}
+                          {formatNumber(run.count)} detections •{" "}
+                          {secondsToLabel(run.duration)}
                         </div>
                       </div>
-                      <Badge variant="secondary" className="rounded-full">{formatNumber(run.count)}</Badge>
+                      <Badge variant="secondary" className="rounded-full">
+                        {formatNumber(run.count)}
+                      </Badge>
                     </div>
                   ))}
                   {runStats.length === 0 && (
-                    <div className="text-muted-foreground text-center py-8">No run data available</div>
+                    <div className="text-muted-foreground text-center py-8">
+                      No run data available
+                    </div>
                   )}
                 </div>
               </CardContent>
@@ -916,37 +1494,55 @@ export default function HomePage() {
                     {run.preview_screenshot && (
                       <div className="aspect-video w-full overflow-hidden bg-muted">
                         <img
-                          src={`/api/screenshots/${encodeURIComponent(run.preview_screenshot)}`}
+                          src={`/api/screenshots/${
+                            encodeURIComponent(run.preview_screenshot)
+                          }`}
                           alt={`Run ${run.run_id} preview`}
                           className="w-full h-full object-cover"
                           loading="lazy"
                         />
                       </div>
                     )}
-                    
+
                     {/* Run Info */}
                     <div className="p-4">
                       <div className="flex items-start justify-between mb-3">
                         <div>
-                          <h3 className="font-bold text-lg">Run #{run.run_id}</h3>
+                          <h3 className="font-bold text-lg">
+                            Run #{run.run_id}
+                          </h3>
                           <p className="text-sm text-muted-foreground">
                             {new Date(run.first_timestamp).toLocaleDateString()}
                           </p>
                         </div>
-                        <Badge className="rounded-full">{formatNumber(run.count)}</Badge>
+                        <Badge className="rounded-full">
+                          {formatNumber(run.count)}
+                        </Badge>
                       </div>
                       <div className="space-y-2 text-sm">
                         <div className="flex items-center justify-between">
-                          <span className="text-muted-foreground">Duration:</span>
-                          <span className="font-medium">{formatDuration(run.duration)}</span>
+                          <span className="text-muted-foreground">
+                            Duration:
+                          </span>
+                          <span className="font-medium">
+                            {formatDuration(run.duration)}
+                          </span>
                         </div>
                         <div className="flex items-center justify-between">
-                          <span className="text-muted-foreground">Detections:</span>
-                          <span className="font-medium">{formatNumber(run.count)}</span>
+                          <span className="text-muted-foreground">
+                            Detections:
+                          </span>
+                          <span className="font-medium">
+                            {formatNumber(run.count)}
+                          </span>
                         </div>
                         <div className="flex items-center justify-between">
-                          <span className="text-muted-foreground">Templates:</span>
-                          <span className="font-medium">{run.templates.length}</span>
+                          <span className="text-muted-foreground">
+                            Templates:
+                          </span>
+                          <span className="font-medium">
+                            {run.templates.length}
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -1012,7 +1608,9 @@ export default function HomePage() {
           images={shots.map((shot) => ({
             name: shot.name,
             url: `/api/screenshots/${encodeURIComponent(shot.name)}`,
-            metadata: `Size: ${(shot.size / 1024).toFixed(2)} KB • Modified: ${new Date(shot.mtime).toLocaleString()}`,
+            metadata: `Size: ${(shot.size / 1024).toFixed(2)} KB • Modified: ${
+              new Date(shot.mtime).toLocaleString()
+            }`,
           }))}
           currentIndex={lightboxIndex}
           onClose={() => setLightboxOpen(false)}
