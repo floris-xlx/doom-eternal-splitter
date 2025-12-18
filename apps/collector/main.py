@@ -210,7 +210,14 @@ def enumerate_runs(data):
     return data
 
 
-def append_matches_to_json(matches, screensize, livesplit_info=None, screenshot_path=None, run_id=None, detection_uuid=None):
+def append_matches_to_json(
+    matches,
+    screensize,
+    livesplit_info=None,
+    screenshot_path=None,
+    run_id=None,
+    detection_uuid=None,
+):
     timestamp = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(
         hours=2
     )
@@ -236,11 +243,11 @@ def append_matches_to_json(matches, screensize, livesplit_info=None, screenshot_
 
         if livesplit_info:
             entry.update(livesplit_info)
-        
+
         # Add run_id directly (from attempt count)
         if run_id is not None:
             entry["run_id"] = run_id
-        
+
         # Add screenshot path if provided
         if screenshot_path:
             entry["screenshot_path"] = screenshot_path
@@ -369,17 +376,17 @@ async def main_loop():
             shot, screensize = get_full_screenshot()
             results = match_templates(shot)
             now = time.time()
-            
+
             if results and (now - last_match_time >= 5):
                 name, score, coords, extra = results[0]
                 log_event(f"Match: {name} at {coords} with {score*100:.2f}%")
-                
+
                 # Generate unique UUID for this detection (prevents collisions)
                 detection_uuid = str(uuid.uuid4())
-                
+
                 # Get LiveSplit info - use attempt count as run_id
                 livesplit_info = await get_livesplit_info()
-                
+
                 # Use attempt count as run_id (more reliable than time-based detection)
                 if livesplit_info and livesplit_info.get("livesplit_attempt_count"):
                     try:
@@ -389,35 +396,37 @@ async def main_loop():
                         run_id = current_run_id
                 else:
                     run_id = current_run_id
-                
+
                 # Create run-specific directory
                 run_dir = os.path.join(screenshots_dir, f"run_{run_id}")
                 os.makedirs(run_dir, exist_ok=True)
-                
+
                 # Generate descriptive filename with UUID to ensure uniqueness
                 marker_name = get_sanitized_marker_name(name)
                 livesplit_time = format_livesplit_time_for_filename(
-                    livesplit_info.get("livesplit_current_time") if livesplit_info else None
+                    livesplit_info.get("livesplit_current_time")
+                    if livesplit_info
+                    else None
                 )
                 timestamp_ms = int(time.time() * 1000)
-                uuid_short = detection_uuid.split('-')[0]  # Use first part of UUID
+                uuid_short = detection_uuid.split("-")[0]  # Use first part of UUID
                 filename = f"run_{run_id}_{marker_name}_{livesplit_time}_{timestamp_ms}_{uuid_short}.png"
                 filepath = os.path.join(run_dir, filename)
-                
+
                 # Save screenshot with bounding box
                 img_with_box = draw_bounding_box_and_text(shot, results[0])
                 img_with_box.save(filepath)
-                
+
                 # Update matches JSON with the new filename structure
                 append_matches_to_json(
-                    [results[0]], 
-                    screensize, 
+                    [results[0]],
+                    screensize,
                     livesplit_info=livesplit_info,
                     screenshot_path=f"run_{run_id}/{filename}",
                     run_id=run_id,  # Pass run_id directly from attempt count
-                    detection_uuid=detection_uuid  # Pass UUID for uniqueness
+                    detection_uuid=detection_uuid,  # Pass UUID for uniqueness
                 )
-                
+
                 last_match_time = now
             await asyncio.sleep(0.5)
 
