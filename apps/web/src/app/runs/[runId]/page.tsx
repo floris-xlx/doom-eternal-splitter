@@ -104,37 +104,7 @@ export default function RunDetailPage() {
     setLightboxOpen(true);
   };
 
-  if (loading) {
-    return (
-      <main className="p-6">
-        <div className="text-center text-muted-foreground">Loading run data...</div>
-      </main>
-    );
-  }
-
-  if (error || !runData) {
-    return (
-      <main className="p-6">
-        <div className="text-center text-destructive">
-          {error || "Run not found"}
-        </div>
-        <div className="text-center mt-4">
-          <button
-            onClick={() => router.push("/")}
-            className="text-primary hover:underline"
-          >
-            ← Back to Dashboard
-          </button>
-        </div>
-      </main>
-    );
-  }
-
-  const templates = Array.from(new Set(runData.matches.map((m) => m.template)));
-  const avgPercentage =
-    runData.matches.reduce((sum, m) => sum + m.percentage, 0) / runData.matches.length;
-
-  // Calculate segments for this run
+  // Calculate segments for this run (must be before conditional returns)
   const segments = useMemo<SegmentData[]>(() => {
     if (!runData || runData.matches.length < 2) return [];
     
@@ -178,12 +148,44 @@ export default function RunDetailPage() {
     };
   }, [segments]);
 
+  // These calculations need to be after hooks but can use optional chaining for safety
+  const templates = runData ? Array.from(new Set(runData.matches.map((m) => m.template))) : [];
+  const avgPercentage = runData && runData.matches.length > 0
+    ? runData.matches.reduce((sum, m) => sum + m.percentage, 0) / runData.matches.length
+    : 0;
+
   // Prepare lightbox images
-  const lightboxImages = runData.matches.map((match, idx) => ({
+  const lightboxImages = runData ? runData.matches.map((match, idx) => ({
     name: match.screenshot_filename || match.image || match.template,
     url: `/api/screenshots/${encodeURIComponent(match.screenshot_filename || match.image || match.template)}`,
     metadata: `${match.marker || match.template} • ${match.percentage.toFixed(2)}% • ${formatTimeElapsed(match.time_elapsed)} • ${match.livesplit_current_time}`,
-  }));
+  })) : [];
+
+  if (loading) {
+    return (
+      <main className="p-6">
+        <div className="text-center text-muted-foreground">Loading run data...</div>
+      </main>
+    );
+  }
+
+  if (error || !runData) {
+    return (
+      <main className="p-6">
+        <div className="text-center text-destructive">
+          {error || "Run not found"}
+        </div>
+        <div className="text-center mt-4">
+          <button
+            onClick={() => router.push("/")}
+            className="text-primary hover:underline"
+          >
+            ← Back to Dashboard
+          </button>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="p-6 space-y-6">

@@ -445,6 +445,39 @@ export default function HomePage() {
     return result;
   }, [enriched]);
 
+  const allRunsProgressData = useMemo(() => {
+    if (!segmentsData?.runs || segmentsData.runs.length === 0) return [];
+    
+    // Get top 10 most recent runs for readability
+    const topRuns = segmentsData.runs.slice(0, 10);
+    
+    // Find the maximum number of detections across all runs
+    const maxDetections = Math.max(...topRuns.map((r: any) => r.detection_count || 0));
+    
+    // Create data points for each detection index
+    const data = [];
+    for (let i = 1; i <= maxDetections; i++) {
+      const point: any = { detection: i };
+      
+      topRuns.forEach((run: any) => {
+        // Calculate cumulative time for this run at detection i
+        if (i <= run.detection_count) {
+          // Sum all segment durations up to this detection
+          const cumulativeTime = run.segments
+            .slice(0, i - 1)
+            .reduce((sum: number, seg: any) => sum + seg.duration, 0);
+          point[`run_${run.run_id}`] = cumulativeTime;
+        } else {
+          point[`run_${run.run_id}`] = null;
+        }
+      });
+      
+      data.push(point);
+    }
+    
+    return { data, runs: topRuns };
+  }, [segmentsData]);
+
   const [liveConnected, setLiveConnected] = useState<boolean | null>(null);
   useEffect(() => {
     let active = true;
@@ -753,6 +786,98 @@ export default function HomePage() {
               </CardContent>
             </Card>
           </div>
+
+          {/* All Runs Cumulative Progress */}
+          {allRunsProgressData.data.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <LineChart className="w-5 h-5" />
+                  All Runs Cumulative Progress
+                </CardTitle>
+                <CardDescription>
+                  Compare cumulative time across all runs (showing top 10 most recent)
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={400}>
+                  <ReLineChart
+                    data={allRunsProgressData.data}
+                    margin={{ top: 8, right: 16, bottom: 16, left: 16 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis
+                      dataKey="detection"
+                      tick={{ fill: "hsl(var(--muted-foreground))" }}
+                      stroke="hsl(var(--border))"
+                      label={{
+                        value: 'Detection #',
+                        position: 'insideBottom',
+                        offset: -5,
+                        fill: 'hsl(var(--muted-foreground))',
+                      }}
+                    />
+                    <YAxis
+                      tick={{ fill: "hsl(var(--muted-foreground))" }}
+                      stroke="hsl(var(--border))"
+                      label={{
+                        value: 'Time (s)',
+                        angle: -90,
+                        position: 'insideLeft',
+                        fill: 'hsl(var(--muted-foreground))',
+                      }}
+                    />
+                    <ReTooltip
+                      content={({ active, payload }) => {
+                        if (!active || !payload?.length) return null;
+                        const detection = payload[0].payload.detection;
+                        return (
+                          <div className="rounded-lg border bg-card p-3 text-sm shadow-lg">
+                            <div className="font-medium mb-2">Detection #{detection}</div>
+                            <div className="space-y-1">
+                              {payload
+                                .filter((p) => p.value !== null)
+                                .sort((a, b) => (a.value as number) - (b.value as number))
+                                .map((p, idx) => {
+                                  const runId = p.name?.replace('run_', '');
+                                  return (
+                                    <div key={idx} className="flex items-center gap-2">
+                                      <div
+                                        className="w-2 h-2 rounded-full"
+                                        style={{ backgroundColor: p.color }}
+                                      />
+                                      <span>
+                                        Run #{runId}: {formatDuration(p.value as number)}
+                                      </span>
+                                    </div>
+                                  );
+                                })}
+                            </div>
+                          </div>
+                        );
+                      }}
+                    />
+                    <ReLegend
+                      formatter={(value) => `Run #${value.replace('run_', '')}`}
+                      wrapperStyle={{ fontSize: '12px' }}
+                    />
+                    {allRunsProgressData.runs.map((run: any, idx: number) => (
+                      <Line
+                        key={run.run_id}
+                        type="monotone"
+                        dataKey={`run_${run.run_id}`}
+                        stroke={palette[idx % palette.length]}
+                        strokeWidth={2}
+                        dot={false}
+                        connectNulls
+                        name={`run_${run.run_id}`}
+                      />
+                    ))}
+                  </ReLineChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
 
         <TabsContent value="charts" className="space-y-4">
