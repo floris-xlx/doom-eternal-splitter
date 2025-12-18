@@ -446,7 +446,9 @@ export default function HomePage() {
   }, [enriched]);
 
   const allRunsProgressData = useMemo(() => {
-    if (!segmentsData?.runs || segmentsData.runs.length === 0) return [];
+    if (!segmentsData?.runs || segmentsData.runs.length === 0) {
+      return { data: [], runs: [] };
+    }
     
     // Get top 10 most recent runs for readability
     const topRuns = segmentsData.runs.slice(0, 10);
