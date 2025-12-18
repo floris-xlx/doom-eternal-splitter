@@ -10,3 +10,10 @@ Commands
 - pnpm dev:web
 
 
+
+start web server first:
+pnpm dev:web
+
+start collector server:
+cd apps/collector
+python main.py

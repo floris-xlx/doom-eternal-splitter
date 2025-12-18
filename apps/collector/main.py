@@ -210,7 +210,7 @@ def enumerate_runs(data):
     return data
 
 
-def append_matches_to_json(matches, screensize, livesplit_info=None):
+def append_matches_to_json(matches, screensize, livesplit_info=None, screenshot_path=None):
     timestamp = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(
         hours=2
     )
@@ -235,6 +235,10 @@ def append_matches_to_json(matches, screensize, livesplit_info=None):
 
         if livesplit_info:
             entry.update(livesplit_info)
+        
+        # Add screenshot path if provided
+        if screenshot_path:
+            entry["screenshot_path"] = screenshot_path
 
         entry_list.append(entry)
 
@@ -289,6 +293,8 @@ def draw_bounding_box_and_text(image_pil, match_info):
 
 
 last_match_time = 0
+current_run_id = 1
+last_livesplit_time = None
 
 
 def start_status_server(host: str = "127.0.0.1", port: int = 5555):
@@ -320,23 +326,102 @@ def start_status_server(host: str = "127.0.0.1", port: int = 5555):
     t.start()
 
 
+def get_sanitized_marker_name(template_name):
+    """Extract and sanitize marker name for filename."""
+    if "/" in template_name:
+        parts = template_name.split("/")
+        marker = parts[0]  # Get the first part (e.g., 'checkpoint')
+    else:
+        marker = "unknown"
+    # Remove any invalid filename characters
+    marker = marker.replace("/", "_").replace("\\", "_").replace(":", "-")
+    return marker
+
+
+def format_livesplit_time_for_filename(livesplit_time_str):
+    """Format LiveSplit time string for use in filename."""
+    if not livesplit_time_str:
+        return "no-time"
+    try:
+        # Format: "00:00:06.7685969" -> "00-00-06-768"
+        time_str = livesplit_time_str.replace(":", "-").split(".")[0]
+        if "." in livesplit_time_str:
+            ms = livesplit_time_str.split(".")[1][:3]  # First 3 digits of milliseconds
+            time_str += f"-{ms}"
+        return time_str
+    except Exception:
+        return "no-time"
+
+
+def detect_run_change(current_livesplit_info):
+    """Detect if we've started a new run based on LiveSplit time decreasing."""
+    global current_run_id, last_livesplit_time
+    
+    current_time_str = current_livesplit_info.get("livesplit_current_time")
+    if not current_time_str:
+        return current_run_id
+    
+    try:
+        # Parse current time
+        h, m, s = current_time_str.split(":")
+        s, ms = s.split(".") if "." in s else (s, "0")
+        current_seconds = int(h) * 3600 + int(m) * 60 + float(f"{s}.{ms}")
+        
+        # Check if time went backwards (new run started)
+        if last_livesplit_time is not None and current_seconds < last_livesplit_time:
+            current_run_id += 1
+            log_event(f"New run detected! Now on run #{current_run_id}")
+        
+        last_livesplit_time = current_seconds
+    except Exception:
+        pass
+    
+    return current_run_id
+
+
 async def main_loop():
-    global last_match_time
+    global last_match_time, current_run_id
     setup_hotkeys()
 
     try:
         while True:
             shot, screensize = get_full_screenshot()
-            fname = f"{screenshots_dir}/{int(time.time()*1000)}.png"
             results = match_templates(shot)
             now = time.time()
+            
             if results and (now - last_match_time >= 5):
                 name, score, coords, extra = results[0]
                 log_event(f"Match: {name} at {coords} with {score*100:.2f}%")
-                img_with_box = draw_bounding_box_and_text(shot, results[0])
-                img_with_box.save(fname)
+                
+                # Get LiveSplit info and detect run changes
                 livesplit_info = await get_livesplit_info()
-                append_matches_to_json([results[0]], screensize, livesplit_info)
+                run_id = detect_run_change(livesplit_info)
+                
+                # Create run-specific directory
+                run_dir = os.path.join(screenshots_dir, f"run_{run_id}")
+                os.makedirs(run_dir, exist_ok=True)
+                
+                # Generate descriptive filename
+                marker_name = get_sanitized_marker_name(name)
+                livesplit_time = format_livesplit_time_for_filename(
+                    livesplit_info.get("livesplit_current_time")
+                )
+                timestamp_ms = int(time.time() * 1000)
+                filename = f"run_{run_id}_{marker_name}_{livesplit_time}_{timestamp_ms}.png"
+                filepath = os.path.join(run_dir, filename)
+                
+                # Save screenshot with bounding box
+                img_with_box = draw_bounding_box_and_text(shot, results[0])
+                img_with_box.save(filepath)
+                
+                # Update matches JSON with the new filename structure
+                append_matches_to_json(
+                    [results[0]], 
+                    screensize, 
+                    livesplit_info,
+                    screenshot_path=f"run_{run_id}/{filename}"
+                )
+                
                 last_match_time = now
             await asyncio.sleep(0.5)
 

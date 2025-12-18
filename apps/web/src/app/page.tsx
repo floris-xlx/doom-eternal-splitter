@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Map as MapIcon,
   BarChart3,
@@ -14,6 +15,8 @@ import {
   Gauge,
   PieChart,
   LineChart,
+  FileText,
+  PlayCircle,
 } from "lucide-react";
 import {
   ResponsiveContainer,
@@ -39,6 +42,8 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { formatNumber, formatDuration } from "@/lib/utils";
+import { ImageLightbox } from "@/components/ImageLightbox";
 
 type Match = {
   template: string;
@@ -112,9 +117,23 @@ const CustomTooltip = ({ active, payload, labelFormatter }: any) => {
   );
 };
 
+type Run = {
+  run_id: number;
+  count: number;
+  duration: number;
+  templates: string[];
+  first_timestamp: string;
+  last_timestamp: string;
+  preview_screenshot?: string;
+};
+
 export default function HomePage() {
+  const router = useRouter();
   const [data, setData] = useState<Match[]>([]);
   const [shots, setShots] = useState<{ name: string; size: number; mtime: number }[]>([]);
+  const [runs, setRuns] = useState<Run[]>([]);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
 
   useEffect(() => {
     fetch("/api/data")
@@ -128,6 +147,13 @@ export default function HomePage() {
       .then((r) => r.json())
       .then((list) => Array.isArray(list) ? setShots(list) : setShots([]))
       .catch(() => setShots([]));
+  }, []);
+
+  useEffect(() => {
+    fetch("/api/runs")
+      .then((r) => r.json())
+      .then((list) => Array.isArray(list) ? setRuns(list) : setRuns([]))
+      .catch(() => setRuns([]));
   }, []);
 
   const templates = useMemo(
@@ -290,17 +316,17 @@ export default function HomePage() {
   }, [enriched]);
 
   const runStats = useMemo(() => {
-    const runs = new Map<number, { count: number; start: number; end: number }>();
+    const runsMap = new Map<number, { id: number; count: number; start: number; end: number }>();
     for (const d of enriched) {
       if (typeof d.livesplitSeconds !== "number") continue;
       const id = d.runId ?? -1;
-      const existing = runs.get(id) || { count: 0, start: Infinity, end: -Infinity };
+      const existing = runsMap.get(id) || { id, count: 0, start: Infinity, end: -Infinity };
       existing.count++;
       existing.start = Math.min(existing.start, d.livesplitSeconds);
       existing.end = Math.max(existing.end, d.livesplitSeconds);
-      runs.set(id, existing);
+      runsMap.set(id, existing);
     }
-    return Array.from(runs.values())
+    return Array.from(runsMap.values())
       .map((r) => ({
         ...r,
         duration: r.end - r.start,
@@ -380,7 +406,19 @@ export default function HomePage() {
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold text-primary">Speedrun Analytics</h1>
           <div className="flex items-center gap-3">
-            <Badge variant={liveConnected ? "default" : "secondary"} className="gap-2">
+            <button
+              onClick={() => router.push("/logs")}
+              className="px-4 py-2 rounded-lg bg-accent hover:bg-accent/80 text-accent-foreground font-medium transition-colors flex items-center gap-2"
+            >
+              <FileText className="w-4 h-4" />
+              Logs
+            </button>
+            <Badge 
+              variant={liveConnected ? "default" : "secondary"} 
+              className={`gap-2 px-3 py-1.5 rounded-full transition-all ${
+                liveConnected ? "bg-green-600 hover:bg-green-700 animate-pulse" : ""
+              }`}
+            >
               <LinkIcon className="w-3 h-3" />
               {liveConnected === null
                 ? "LiveSplit: Unknown"
@@ -392,25 +430,25 @@ export default function HomePage() {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Card>
+          <Card className="rounded-xl">
             <CardHeader className="pb-3">
               <CardDescription>Total Detections</CardDescription>
-              <CardTitle className="text-2xl">{stats.total.toLocaleString()}</CardTitle>
+              <CardTitle className="text-2xl">{formatNumber(stats.total)}</CardTitle>
             </CardHeader>
           </Card>
-          <Card>
+          <Card className="rounded-xl">
             <CardHeader className="pb-3">
               <CardDescription>With LiveSplit</CardDescription>
-              <CardTitle className="text-2xl">{stats.withLiveSplit.toLocaleString()}</CardTitle>
+              <CardTitle className="text-2xl">{formatNumber(stats.withLiveSplit)}</CardTitle>
             </CardHeader>
           </Card>
-          <Card>
+          <Card className="rounded-xl">
             <CardHeader className="pb-3">
               <CardDescription>Templates</CardDescription>
-              <CardTitle className="text-2xl">{stats.templates}</CardTitle>
+              <CardTitle className="text-2xl">{formatNumber(stats.templates)}</CardTitle>
             </CardHeader>
           </Card>
-          <Card>
+          <Card className="rounded-xl">
             <CardHeader className="pb-3">
               <CardDescription>Avg Interval</CardDescription>
               <CardTitle className="text-2xl">
@@ -422,11 +460,12 @@ export default function HomePage() {
       </div>
 
       <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="charts">Charts</TabsTrigger>
-          <TabsTrigger value="analysis">Analysis</TabsTrigger>
-          <TabsTrigger value="screenshots">Screenshots</TabsTrigger>
+        <TabsList className="rounded-xl">
+          <TabsTrigger value="overview" className="rounded-lg">Overview</TabsTrigger>
+          <TabsTrigger value="charts" className="rounded-lg">Charts</TabsTrigger>
+          <TabsTrigger value="analysis" className="rounded-lg">Analysis</TabsTrigger>
+          <TabsTrigger value="runs" className="rounded-lg">Runs</TabsTrigger>
+          <TabsTrigger value="screenshots" className="rounded-lg">Screenshots</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4">
@@ -833,14 +872,18 @@ export default function HomePage() {
               <CardContent>
                 <div className="space-y-2">
                   {runStats.map((run, idx) => (
-                    <div key={idx} className="flex items-center justify-between p-2 rounded-sm bg-muted/50">
+                    <div 
+                      key={idx} 
+                      onClick={() => router.push(`/runs/${run.id}`)}
+                      className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-accent cursor-pointer transition-colors"
+                    >
                       <div>
-                        <div className="font-medium">Run #{idx + 1}</div>
+                        <div className="font-medium">Run #{run.id}</div>
                         <div className="text-sm text-muted-foreground">
-                          {run.count} detections • {secondsToLabel(run.duration)}
+                          {formatNumber(run.count)} detections • {secondsToLabel(run.duration)}
                         </div>
                       </div>
-                      <Badge variant="secondary">{run.count}</Badge>
+                      <Badge variant="secondary" className="rounded-full">{formatNumber(run.count)}</Badge>
                     </div>
                   ))}
                   {runStats.length === 0 && (
@@ -852,8 +895,75 @@ export default function HomePage() {
           </div>
         </TabsContent>
 
+        <TabsContent value="runs" className="space-y-4">
+          <Card className="rounded-xl">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <PlayCircle className="w-5 h-5" />
+                All Runs
+              </CardTitle>
+              <CardDescription>Browse all recorded speedruns</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {runs.map((run) => (
+                  <div
+                    key={run.run_id}
+                    onClick={() => router.push(`/runs/${run.run_id}`)}
+                    className="rounded-xl border bg-card hover:bg-accent cursor-pointer transition-colors overflow-hidden"
+                  >
+                    {/* Preview Screenshot */}
+                    {run.preview_screenshot && (
+                      <div className="aspect-video w-full overflow-hidden bg-muted">
+                        <img
+                          src={`/api/screenshots/${encodeURIComponent(run.preview_screenshot)}`}
+                          alt={`Run ${run.run_id} preview`}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                        />
+                      </div>
+                    )}
+                    
+                    {/* Run Info */}
+                    <div className="p-4">
+                      <div className="flex items-start justify-between mb-3">
+                        <div>
+                          <h3 className="font-bold text-lg">Run #{run.run_id}</h3>
+                          <p className="text-sm text-muted-foreground">
+                            {new Date(run.first_timestamp).toLocaleDateString()}
+                          </p>
+                        </div>
+                        <Badge className="rounded-full">{formatNumber(run.count)}</Badge>
+                      </div>
+                      <div className="space-y-2 text-sm">
+                        <div className="flex items-center justify-between">
+                          <span className="text-muted-foreground">Duration:</span>
+                          <span className="font-medium">{formatDuration(run.duration)}</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-muted-foreground">Detections:</span>
+                          <span className="font-medium">{formatNumber(run.count)}</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-muted-foreground">Templates:</span>
+                          <span className="font-medium">{run.templates.length}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                {runs.length === 0 && (
+                  <div className="col-span-full text-center text-muted-foreground py-8">
+                    No runs found.
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
         <TabsContent value="screenshots" className="space-y-4">
-          <Card>
+          <Card className="rounded-xl">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <ImagesIcon className="w-5 h-5" />
@@ -863,26 +973,27 @@ export default function HomePage() {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-                {shots.map((f) => (
-                  <a
+                {shots.map((f, idx) => (
+                  <div
                     key={f.name}
-                    href={`/api/screenshots/${encodeURIComponent(f.name)}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="group rounded-sm border bg-card focus:outline-none focus:ring-2 focus:ring-ring hover:bg-accent transition-colors"
+                    onClick={() => {
+                      setLightboxIndex(idx);
+                      setLightboxOpen(true);
+                    }}
+                    className="group rounded-lg border bg-card focus:outline-none focus:ring-2 focus:ring-ring hover:bg-accent transition-colors cursor-pointer"
                   >
-                    <div className="aspect-video w-full overflow-hidden rounded-t-sm bg-muted">
+                    <div className="aspect-video w-full overflow-hidden rounded-t-lg bg-muted">
                       <img
                         src={`/api/screenshots/${encodeURIComponent(f.name)}`}
                         alt={f.name}
-                        className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform"
+                        className="w-full h-full object-cover group-hover:scale-[1.05] transition-transform"
                         loading="lazy"
                       />
                     </div>
                     <div className="px-2 py-1.5 text-xs truncate text-muted-foreground">
                       {f.name}
                     </div>
-                  </a>
+                  </div>
                 ))}
                 {!shots.length && (
                   <div className="col-span-full text-center text-muted-foreground py-8">
@@ -894,6 +1005,19 @@ export default function HomePage() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Lightbox for screenshots */}
+      {lightboxOpen && (
+        <ImageLightbox
+          images={shots.map((shot) => ({
+            name: shot.name,
+            url: `/api/screenshots/${encodeURIComponent(shot.name)}`,
+            metadata: `Size: ${(shot.size / 1024).toFixed(2)} KB • Modified: ${new Date(shot.mtime).toLocaleString()}`,
+          }))}
+          currentIndex={lightboxIndex}
+          onClose={() => setLightboxOpen(false)}
+        />
+      )}
     </main>
   );
 }

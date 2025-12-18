@@ -137,3 +137,24 @@
 [2025-09-13 21:12:39 CEST] Match: checkpoint/1.png at (3462, 300) with 97.20%
 [2025-09-13 21:12:58 CEST] Match: checkpoint/1.png at (3462, 300) with 98.69%
 [2025-09-13 21:13:34 CEST] Match: checkpoint/1.png at (3462, 300) with 99.22%
+[2025-12-18 08:23:18 CEST] Hotkeys configured: {'f1': 'imp', 'f2': 'soldier'}
+[2025-12-18 08:26:23 CEST] Match: checkpoint/1.png at (3462, 300) with 98.93%
+[2025-12-18 08:26:44 CEST] Match: checkpoint/1.png at (3462, 300) with 98.84%
+[2025-12-18 08:27:00 CEST] Match: checkpoint/1.png at (3462, 300) with 95.17%
+[2025-12-18 08:27:57 CEST] Match: checkpoint/1.png at (3462, 300) with 98.47%
+[2025-12-18 08:28:04 CEST] Match: checkpoint/1.png at (3462, 300) with 98.79%
+[2025-12-18 08:28:24 CEST] Match: checkpoint/1.png at (3462, 300) with 99.23%
+[2025-12-18 08:29:16 CEST] Match: checkpoint/1.png at (3462, 300) with 97.10%
+[2025-12-18 08:30:26 CEST] Match: checkpoint/1.png at (3462, 300) with 99.12%
+[2025-12-18 08:30:41 CEST] Match: checkpoint/1.png at (3462, 300) with 90.54%
+[2025-12-18 08:30:58 CEST] Match: checkpoint/1.png at (3462, 300) with 97.32%
+[2025-12-18 08:32:04 CEST] Match: checkpoint/1.png at (3462, 300) with 99.05%
+[2025-12-18 08:32:11 CEST] Match: checkpoint/1.png at (3462, 300) with 96.83%
+[2025-12-18 08:32:34 CEST] Match: checkpoint/1.png at (3462, 300) with 96.06%
+[2025-12-18 08:33:10 CEST] Match: checkpoint/1.png at (3462, 300) with 99.25%
+[2025-12-18 08:33:57 CEST] Match: checkpoint/1.png at (3462, 300) with 94.42%
+[2025-12-18 08:34:04 CEST] Match: checkpoint/1.png at (3462, 300) with 97.63%
+[2025-12-18 08:34:23 CEST] Match: checkpoint/1.png at (3462, 300) with 97.31%
+[2025-12-18 08:35:25 CEST] Match: checkpoint/1.png at (3462, 300) with 98.37%
+[2025-12-18 08:35:58 CEST] Match: checkpoint/1.png at (3462, 300) with 89.55%
+[2025-12-18 08:36:19 CEST] Match: checkpoint/1.png at (3462, 300) with 97.63%

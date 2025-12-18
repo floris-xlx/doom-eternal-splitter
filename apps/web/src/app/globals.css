@@ -23,7 +23,9 @@
     --border: 0 0% 15%;
     --input: 0 0% 15%;
     --ring: 0 0% 60%;
-    --radius: 0.125rem;
+    --radius: 0.75rem;
+    --radius-sm: 0.5rem;
+    --radius-lg: 1rem;
     --brand: 130 84% 44%;
     --hover: 0 0% 15%;
   }
@@ -40,5 +42,24 @@
 
 html, body {
   height: 100%;
+}
+
+/* Smooth transitions for interactive elements */
+button, a, [role="button"] {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Pulse animation for connected status */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
