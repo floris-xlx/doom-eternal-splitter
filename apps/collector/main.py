@@ -210,7 +210,7 @@ def enumerate_runs(data):
     return data
 
 
-def append_matches_to_json(matches, screensize, livesplit_info=None, screenshot_path=None):
+def append_matches_to_json(matches, screensize, livesplit_info=None, screenshot_path=None, run_id=None, detection_uuid=None):
     timestamp = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(
         hours=2
     )
@@ -224,6 +224,7 @@ def append_matches_to_json(matches, screensize, livesplit_info=None, screenshot_
             marker = "/".join(parts[:-1])
             image = parts[-1]
         entry = {
+            "id": detection_uuid or str(uuid.uuid4()),  # Unique ID for this detection
             "template": name,
             "marker": marker,
             "image": image,
@@ -235,6 +236,10 @@ def append_matches_to_json(matches, screensize, livesplit_info=None, screenshot_
 
         if livesplit_info:
             entry.update(livesplit_info)
+        
+        # Add run_id directly (from attempt count)
+        if run_id is not None:
+            entry["run_id"] = run_id
         
         # Add screenshot path if provided
         if screenshot_path:
@@ -253,7 +258,7 @@ def append_matches_to_json(matches, screensize, livesplit_info=None, screenshot_
     except Exception:
         data = []
     data.extend(entry_list)
-    data = enumerate_runs(data)
+    # No longer need to enumerate runs - using attempt count directly
     with open(matches_json_path, "w") as f:
         json.dump(data, f, indent=2)
 
@@ -294,7 +299,6 @@ def draw_bounding_box_and_text(image_pil, match_info):
 
 last_match_time = 0
 current_run_id = 1
-last_livesplit_time = None
 
 
 def start_status_server(host: str = "127.0.0.1", port: int = 5555):
@@ -353,30 +357,7 @@ def format_livesplit_time_for_filename(livesplit_time_str):
         return "no-time"
 
 
-def detect_run_change(current_livesplit_info):
-    """Detect if we've started a new run based on LiveSplit time decreasing."""
-    global current_run_id, last_livesplit_time
-    
-    current_time_str = current_livesplit_info.get("livesplit_current_time")
-    if not current_time_str:
-        return current_run_id
-    
-    try:
-        # Parse current time
-        h, m, s = current_time_str.split(":")
-        s, ms = s.split(".") if "." in s else (s, "0")
-        current_seconds = int(h) * 3600 + int(m) * 60 + float(f"{s}.{ms}")
-        
-        # Check if time went backwards (new run started)
-        if last_livesplit_time is not None and current_seconds < last_livesplit_time:
-            current_run_id += 1
-            log_event(f"New run detected! Now on run #{current_run_id}")
-        
-        last_livesplit_time = current_seconds
-    except Exception:
-        pass
-    
-    return current_run_id
+# Removed detect_run_change function - now using LiveSplit attempt count as run_id
 
 
 async def main_loop():
@@ -393,21 +374,34 @@ async def main_loop():
                 name, score, coords, extra = results[0]
                 log_event(f"Match: {name} at {coords} with {score*100:.2f}%")
                 
-                # Get LiveSplit info and detect run changes
+                # Generate unique UUID for this detection (prevents collisions)
+                detection_uuid = str(uuid.uuid4())
+                
+                # Get LiveSplit info - use attempt count as run_id
                 livesplit_info = await get_livesplit_info()
-                run_id = detect_run_change(livesplit_info)
+                
+                # Use attempt count as run_id (more reliable than time-based detection)
+                if livesplit_info and livesplit_info.get("livesplit_attempt_count"):
+                    try:
+                        run_id = int(livesplit_info.get("livesplit_attempt_count"))
+                        current_run_id = run_id  # Update global for consistency
+                    except (ValueError, TypeError):
+                        run_id = current_run_id
+                else:
+                    run_id = current_run_id
                 
                 # Create run-specific directory
                 run_dir = os.path.join(screenshots_dir, f"run_{run_id}")
                 os.makedirs(run_dir, exist_ok=True)
                 
-                # Generate descriptive filename
+                # Generate descriptive filename with UUID to ensure uniqueness
                 marker_name = get_sanitized_marker_name(name)
                 livesplit_time = format_livesplit_time_for_filename(
-                    livesplit_info.get("livesplit_current_time")
+                    livesplit_info.get("livesplit_current_time") if livesplit_info else None
                 )
                 timestamp_ms = int(time.time() * 1000)
-                filename = f"run_{run_id}_{marker_name}_{livesplit_time}_{timestamp_ms}.png"
+                uuid_short = detection_uuid.split('-')[0]  # Use first part of UUID
+                filename = f"run_{run_id}_{marker_name}_{livesplit_time}_{timestamp_ms}_{uuid_short}.png"
                 filepath = os.path.join(run_dir, filename)
                 
                 # Save screenshot with bounding box
@@ -418,8 +412,10 @@ async def main_loop():
                 append_matches_to_json(
                     [results[0]], 
                     screensize, 
-                    livesplit_info,
-                    screenshot_path=f"run_{run_id}/{filename}"
+                    livesplit_info=livesplit_info,
+                    screenshot_path=f"run_{run_id}/{filename}",
+                    run_id=run_id,  # Pass run_id directly from attempt count
+                    detection_uuid=detection_uuid  # Pass UUID for uniqueness
                 )
                 
                 last_match_time = now
